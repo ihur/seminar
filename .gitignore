@@ -1,0 +1,11 @@
+.DS_Store
+*.swp
+*.swo
+*~
+session2/poster.html
+session2/poster_*.jpg
+session2/poster_*.png
+session2/presentation.html
+session2/대체불가인간_강의스크립트.md
+session2/대체불가인간_강의스크립트.pdf
+session2/대체불가인간_강의스크립트_v2.md

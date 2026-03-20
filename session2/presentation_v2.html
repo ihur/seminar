@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>대체불가 인간</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;700;900&family=Bebas+Neue&family=Noto+Sans+KR:wght@100;300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #050508;
+    --white: #f5f0eb;
+    --gold: #c9a84c;
+    --red: #c0392b;
+    --blue-deep: #0a1628;
+    --cell-glow: #4fc3f7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Noto Serif KR', serif;
+    overflow-x: hidden;
+  }
+
+  /* ─── SLIDE BASE ─── */
+  .slide {
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ─── NAV DOTS ─── */
+  .nav {
+    position: fixed;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  .nav a {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    display: block;
+    transition: all 0.3s;
+  }
+  .nav a:hover, .nav a.active { background: var(--gold); transform: scale(1.5); }
+
+  /* ─── SLIDE 1: TITLE ─── */
+  #s1 {
+    background: #000;
+    flex-direction: column;
+  }
+  .s1-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, #1a0a2e 0%, #000 60%);
+  }
+  .s1-stars {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, white, transparent),
+      radial-gradient(1px 1px at 80% 10%, white, transparent),
+      radial-gradient(1px 1px at 60% 70%, white, transparent),
+      radial-gradient(1px 1px at 10% 80%, white, transparent),
+      radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 45% 15%, white, transparent),
+      radial-gradient(1px 1px at 35% 85%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1px 1px at 70% 40%, white, transparent),
+      radial-gradient(1px 1px at 15% 55%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 55% 95%, white, transparent);
+    animation: twinkle 4s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle {
+    0% { opacity: 0.6; }
+    100% { opacity: 1; }
+  }
+
+  /* DNA helix SVG animation */
+  .s1-visual {
+    position: absolute;
+    right: 8%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 300px;
+    height: 500px;
+    opacity: 0.4;
+  }
+
+  .s1-content {
+    position: relative;
+    z-index: 2;
+    text-align: left;
+    padding-left: 8%;
+    padding-right: 50%;
+  }
+  .s1-sub {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 1s 0.3s forwards;
+  }
+  .s1-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    opacity: 0;
+    animation: fadeUp 1s 0.6s forwards;
+  }
+  .s1-title span { color: var(--gold); }
+  .s1-desc {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 100;
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.5);
+    margin-top: 2rem;
+    opacity: 0;
+    animation: fadeUp 1s 0.9s forwards;
+  }
+  .s1-line {
+    width: 60px;
+    height: 2px;
+    background: var(--gold);
+    margin-top: 2rem;
+    opacity: 0;
+    animation: fadeUp 1s 1.2s forwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── SLIDE 1b: SPEAKER ─── */
+  #s1b {
+    background: #000;
+  }
+  .s1b-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 70% 50%, #0d0820 0%, #000 55%);
+  }
+  .s1b-line-v {
+    position: absolute;
+    left: 46%;
+    top: 8%;
+    bottom: 8%;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(201,168,76,0.25), transparent);
+  }
+  .s1b-layout {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    height: 100vh;
+    align-items: center;
+  }
+  /* LEFT — photo */
+  .s1b-photo-side {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0 4% 0 8%;
+  }
+  .s1b-photo-wrap {
+    position: relative;
+    width: min(320px, 32vw);
+  }
+  .s1b-photo-wrap img {
+    width: 100%;
+    display: block;
+    filter: grayscale(15%) contrast(1.05);
+  }
+  .s1b-photo-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border: 1px solid rgba(201,168,76,0.2);
+    pointer-events: none;
+  }
+  .s1b-photo-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: -3px;
+    width: 60px;
+    height: 60px;
+    border-bottom: 2px solid var(--gold);
+    border-left: 2px solid var(--gold);
+    pointer-events: none;
+  }
+  .s1b-corner-tr {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 60px;
+    height: 60px;
+    border-top: 2px solid var(--gold);
+    border-right: 2px solid var(--gold);
+    pointer-events: none;
+  }
+  /* RIGHT — info */
+  .s1b-info-side {
+    padding: 0 8% 0 6%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+  }
+  .s1b-eyebrow {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.5em;
+    color: var(--gold);
+    opacity: 0.7;
+    margin-bottom: 1.2rem;
+  }
+  .s1b-name {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.4rem;
+  }
+  .s1b-name-en {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1rem, 1.8vw, 1.4rem);
+    letter-spacing: 0.25em;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 2.5rem;
+  }
+  .s1b-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    margin-bottom: 2.5rem;
+    opacity: 0.6;
+  }
+  .s1b-roles {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+    margin-bottom: 2.8rem;
+  }
+  .s1b-role {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .s1b-role-org {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(0.7rem, 1.1vw, 0.85rem);
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    opacity: 0.65;
+  }
+  .s1b-role-title {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    color: rgba(255,255,255,0.75);
+    line-height: 1.5;
+  }
+  .s1b-role-title.past {
+    color: rgba(255,255,255,0.35);
+  }
+  .s1b-edu {
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.07);
+  }
+  .s1b-edu-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    color: rgba(255,255,255,0.2);
+    margin-bottom: 0.6rem;
+  }
+  .s1b-edu-text {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    font-size: clamp(0.8rem, 1.3vw, 0.95rem);
+    color: rgba(255,255,255,0.45);
+    line-height: 1.7;
+  }
+
+  /* ─── SLIDE 2: QUESTION ─── */
+  #s2 {
+    background: #030303;
+  }
+  .s2-bg {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    opacity: 0.08;
+  }
+  .s2-bg div {
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  .s2-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 900px;
+    padding: 2rem;
+  }
+  .s2-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 14vw, 12rem);
+    line-height: 0.9;
+    color: rgba(255,255,255,0.06);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    letter-spacing: -0.02em;
+    pointer-events: none;
+  }
+  .question-line {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 300;
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    color: rgba(255,255,255,0.4);
+    line-height: 2;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+  .question-line.highlight {
+    font-size: clamp(2rem, 4.5vw, 3.5rem);
+    font-weight: 700;
+    color: var(--white);
+  }
+  .question-mark {
+    color: var(--gold);
+    font-size: 1.2em;
+  }
+
+  /* ─── SLIDE 3: CELL LAB ─── */
+  #s3 {
+    background: #000810;
+  }
+  .cell-canvas {
+    position: absolute;
+    inset: 0;
+  }
+  .s3-content {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    height: 100vh;
+    align-items: center;
+  }
+  .s3-left {
+    padding: 6% 4% 6% 8%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+  }
+  .s3-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.5em;
+    color: var(--cell-glow);
+    opacity: 0.7;
+  }
+  .s3-heading {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.1;
+  }
+  .s3-heading em {
+    font-style: normal;
+    color: var(--cell-glow);
+  }
+  .s3-body {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+    line-height: 2;
+    color: rgba(255,255,255,0.6);
+  }
+  .s3-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    position: relative;
+  }
+
+  /* Microscope cell animation */
+  .microscope-frame {
+    width: min(420px, 42vw);
+    height: min(420px, 42vw);
+    border-radius: 50%;
+    border: 3px solid rgba(79,195,247,0.3);
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 0 60px rgba(79,195,247,0.15),
+      inset 0 0 60px rgba(0,0,100,0.5);
+    background: radial-gradient(ellipse at center, #001428 0%, #000810 100%);
+  }
+  .microscope-frame::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    background: radial-gradient(ellipse at 70% 30%, rgba(79,195,247,0.08) 0%, transparent 60%);
+    animation: shimmer 4s ease-in-out infinite alternate;
+  }
+  @keyframes shimmer {
+    0% { opacity: 0.5; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1.1); }
+  }
+  .cell {
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid rgba(79,195,247,0.6);
+    background: radial-gradient(ellipse at 35% 35%, rgba(79,195,247,0.15), rgba(0,20,60,0.3));
+    animation: cellFloat linear infinite;
+  }
+  .cell::after {
+    content: '';
+    position: absolute;
+    width: 30%;
+    height: 30%;
+    border-radius: 50%;
+    background: rgba(79,195,247,0.4);
+    top: 25%; left: 30%;
+    box-shadow: 0 0 10px rgba(79,195,247,0.6);
+  }
+  .tracking-line {
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,200,0,0.8), transparent);
+    transform-origin: left center;
+    animation: track 3s ease-in-out infinite;
+  }
+  @keyframes track {
+    0% { opacity: 0; width: 0; }
+    50% { opacity: 1; width: 100%; }
+    100% { opacity: 0; width: 100%; }
+  }
+  @keyframes cellFloat {
+    0% { transform: translate(0,0) rotate(0deg); }
+    25% { transform: translate(10px, -15px) rotate(45deg); }
+    50% { transform: translate(-5px, 10px) rotate(90deg); }
+    75% { transform: translate(15px, 5px) rotate(135deg); }
+    100% { transform: translate(0,0) rotate(180deg); }
+  }
+  .grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(79,195,247,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,195,247,0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .target-ring {
+    position: absolute;
+    border: 1px dashed rgba(255,200,0,0.4);
+    border-radius: 50%;
+    animation: pulse-ring 2s ease-in-out infinite;
+  }
+  @keyframes pulse-ring {
+    0%, 100% { opacity: 0.3; transform: translate(-50%,-50%) scale(1); }
+    50% { opacity: 0.8; transform: translate(-50%,-50%) scale(1.05); }
+  }
+
+  /* ─── SLIDE 4: EACH CELL DIFFERENT ─── */
+  #s4 {
+    background: #060012;
+  }
+  .s4-content {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    min-height: 100vh;
+  }
+  .s4-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
+    position: relative;
+  }
+  .cell-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    width: min(380px, 38vw);
+  }
+  .cell-item {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: cellPulse var(--dur, 2s) ease-in-out infinite alternate;
+  }
+  @keyframes cellPulse {
+    from { transform: scale(0.92); opacity: 0.7; }
+    to { transform: scale(1.08); opacity: 1; }
+  }
+  .cell-item.react {
+    box-shadow: 0 0 20px var(--c), inset 0 0 10px var(--c);
+    border: 2px solid var(--c);
+  }
+  .cell-item.no-react {
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.03);
+  }
+  .s4-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem 6rem 4rem 2rem;
+    gap: 2rem;
+  }
+  .s4-label {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.5em;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.35);
+  }
+  .s4-heading {
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.2;
+  }
+  .s4-heading .accent { color: #b39ddb; }
+  .s4-subtext {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 100;
+    font-size: clamp(1rem, 1.8vw, 1.3rem);
+    color: rgba(255,255,255,0.45);
+    line-height: 1.9;
+  }
+  .s4-divider {
+    width: 40px;
+    height: 3px;
+    background: #b39ddb;
+  }
+
+  /* ─── SLIDE 5: BLACK BOX ─── */
+  #s5 {
+    background: #000;
+    flex-direction: column;
+  }
+  .blackbox-scene {
+    position: relative;
+    width: min(900px, 92vw);
+    height: min(500px, 55vw);
+    margin: 0 0 0 -5%;
+  }
+  .bbox-input {
+    position: absolute;
+    left: -10%; top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+  }
+  .bbox-output {
+    position: absolute;
+    right: -10%; top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+  }
+  .bbox-box {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(200px, 22vw);
+    height: min(140px, 15vw);
+    background: #0a0a0a;
+    border: 2px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      0 0 40px rgba(0,0,0,0.8),
+      inset 0 0 30px rgba(0,0,0,0.9);
+  }
+  .bbox-box::before {
+    content: '?';
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 8vw, 6rem);
+    color: rgba(255,255,255,0.05);
+  }
+  .bbox-arrow {
+    position: absolute;
+    top: 50%;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.1));
+  }
+  .bbox-arrow.left { left: min(300px, 32vw); width: min(70px, 7vw); }
+  .bbox-arrow.right { right: min(300px, 32vw); width: min(70px, 7vw); background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.6)); }
+  .bbox-icon {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .bbox-label {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.2em;
+  }
+  .s5-title {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .s5-title span { color: var(--gold); }
+  .s5-sub {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    text-align: center;
+    color: rgba(255,255,255,0.35);
+    font-size: clamp(0.85rem, 1.5vw, 1rem);
+    letter-spacing: 0.25em;
+    margin-top: 2.5rem;
+  }
+  .glow-text {
+    color: var(--cell-glow);
+    text-shadow: 0 0 20px var(--cell-glow);
+  }
+
+  /* ─── SLIDE 6: FMRI / BRAIN ─── */
+  #s6 {
+    background: #030010;
+  }
+  .brain-scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .brain-svg-wrap {
+    position: relative;
+    width: min(500px, 55vw);
+    height: min(500px, 55vw);
+    opacity: 0.15;
+  }
+  .brain-svg-wrap svg {
+    width: 100%;
+    height: 100%;
+  }
+  .s6-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 750px;
+    padding: 2rem;
+  }
+  .s6-label {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.5em;
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 3rem;
+  }
+  .fmri-questions {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 2rem 0 3rem;
+  }
+  .fmri-q {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 300;
+    font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+    color: rgba(255,255,255,0.25);
+    position: relative;
+    padding-left: 2rem;
+    text-align: left;
+    transition: color 0.3s;
+  }
+  .fmri-q::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 8px; height: 1px;
+    background: rgba(255,255,255,0.3);
+  }
+  .fmri-q.active {
+    color: var(--white);
+    font-weight: 700;
+    font-size: clamp(1.3rem, 2.8vw, 2rem);
+  }
+  .fmri-q.active::before {
+    width: 20px;
+    background: var(--gold);
+    height: 2px;
+  }
+  .s6-verdict {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 100;
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.2em;
+    line-height: 2.2;
+    margin-top: 2rem;
+  }
+  .s6-verdict strong {
+    color: rgba(255,255,255,0.7);
+    font-weight: 400;
+  }
+
+  /* ─── SLIDE 7: AI VS HUMAN ─── */
+  #s7 {
+    background: #050505;
+  }
+  .vs-layout {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    width: 100%;
+    min-height: 100vh;
+    align-items: center;
+  }
+  .vs-side {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .vs-side.ai-side {
+    background: linear-gradient(135deg, #0d0d0d 0%, #111 100%);
+    border-right: 1px solid rgba(255,255,255,0.05);
+    align-items: flex-end;
+    text-align: right;
+  }
+  .vs-side.human-side {
+    background: linear-gradient(135deg, #0a0818 0%, #110a22 100%);
+  }
+  .vs-tag {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.5em;
+    margin-bottom: 2rem;
+  }
+  .ai-side .vs-tag { color: rgba(255,255,255,0.3); }
+  .human-side .vs-tag { color: var(--gold); }
+  .vs-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 6vw, 5rem);
+    line-height: 1;
+    margin-bottom: 3rem;
+  }
+  .ai-side .vs-name { color: rgba(255,255,255,0.15); }
+  .human-side .vs-name { color: var(--white); }
+  .vs-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  .vs-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    line-height: 1.6;
+  }
+  .ai-side .vs-item { color: rgba(255,255,255,0.25); flex-direction: row-reverse; }
+  .human-side .vs-item { color: rgba(255,255,255,0.7); }
+  .vs-item-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    margin-top: 2px;
+  }
+  .ai-side .vs-item-icon {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.2);
+  }
+  .human-side .vs-item-icon {
+    background: rgba(201,168,76,0.2);
+    color: var(--gold);
+  }
+  .vs-divider {
+    width: 1px;
+    height: 60vh;
+    background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.15), transparent);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .vs-circle {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.4);
+    background: #1a1a1a;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.8);
+    letter-spacing: 0.1em;
+    position: relative;
+    z-index: 2;
+  }
+  .blackbox-badge {
+    margin-top: 3rem;
+    padding: 1rem 1.5rem;
+    border: 1px solid rgba(201,168,76,0.3);
+    background: rgba(201,168,76,0.05);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    font-size: clamp(0.8rem, 1.3vw, 0.95rem);
+    color: var(--gold);
+    line-height: 1.8;
+  }
+
+  /* ─── SLIDE 8: YOUR DRUG ─── */
+  #s8 {
+    background: #000;
+    flex-direction: column;
+  }
+  .s8-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 60%, #1a0830 0%, #000 65%);
+  }
+  .s8-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    padding: 2rem;
+  }
+  .s8-eyebrow {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.5em;
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.25);
+    margin-bottom: 2rem;
+  }
+  .s8-question {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 300;
+    font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+    color: rgba(255,255,255,0.5);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+  .s8-main {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 2rem;
+  }
+  .s8-main .gold { color: var(--gold); }
+  .s8-sub {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 100;
+    font-size: clamp(0.9rem, 1.6vw, 1.15rem);
+    color: rgba(255,255,255,0.35);
+    line-height: 2.2;
+    letter-spacing: 0.1em;
+  }
+  .reaction-dots {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin: 2.5rem 0;
+  }
+  .rdot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    animation: rdotPulse var(--d, 1.5s) ease-in-out infinite alternate;
+  }
+  @keyframes rdotPulse {
+    from { transform: scale(0.7); opacity: 0.4; }
+    to { transform: scale(1.3); opacity: 1; }
+  }
+
+  /* ─── SLIDE 8b: WHERE IS YOUR HEART NOW ─── */
+  #s8b {
+    background: #020008;
+    flex-direction: column;
+  }
+  .s8b-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 40%, #0d0020 0%, #000 70%);
+  }
+  .s8b-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 860px;
+    padding: 2rem;
+  }
+  .s8b-eyebrow {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.5em;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.2);
+    margin-bottom: 2.5rem;
+  }
+  .s8b-question {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 300;
+    font-size: clamp(1.4rem, 2.8vw, 2rem);
+    color: rgba(255,255,255,0.75);
+    line-height: 1.6;
+    margin-bottom: 3rem;
+  }
+  .s8b-grid {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+  }
+  .s8b-card {
+    padding: 1rem 1.6rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.03);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.1em;
+    position: relative;
+  }
+  .s8b-card.ai-tag::after {
+    content: 'AI가 더 잘함';
+    position: absolute;
+    bottom: -1.4rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    color: rgba(255,100,100,0.5);
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+  }
+  .s8b-verdict {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 700;
+    font-size: clamp(1.3rem, 2.8vw, 2rem);
+    color: var(--white);
+    line-height: 1.7;
+    margin-top: 1rem;
+  }
+  .s8b-verdict em {
+    font-style: normal;
+    color: var(--gold);
+  }
+
+  /* ─── SLIDE 9: CULTIVATE — 마음을 가꾼다 ─── */
+  #s9 {
+    background: #000;
+    flex-direction: column;
+  }
+  .s9-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 60%, #0a1a00 0%, #000 65%);
+  }
+  .s9-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 860px;
+    padding: 2rem;
+  }
+  .s9-label {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.5em;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.2);
+    margin-bottom: 2.5rem;
+  }
+  .s9-analogy {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 300;
+    font-size: clamp(1rem, 2vw, 1.45rem);
+    color: rgba(255,255,255,0.4);
+    line-height: 2;
+    margin-bottom: 2.5rem;
+  }
+  .s9-divider-line {
+    width: 1px;
+    height: 50px;
+    background: linear-gradient(to bottom, transparent, rgba(201,168,76,0.4), transparent);
+    margin: 0 auto 2.5rem;
+  }
+  .s9-main {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 900;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    color: var(--white);
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+  }
+  .s9-main em {
+    font-style: normal;
+    color: var(--gold);
+  }
+  .s9-sub {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 100;
+    font-size: clamp(0.9rem, 1.6vw, 1.1rem);
+    color: rgba(255,255,255,0.35);
+    line-height: 2.2;
+    letter-spacing: 0.1em;
+  }
+  /* keep soul-word class stub so JS doesn't break */
+  .soul-word {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(6rem, 18vw, 14rem);
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(201,168,76,0.3);
+    letter-spacing: 0.05em;
+    line-height: 0.85;
+    position: relative;
+    display: block;
+  }
+  .soul-word::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #c9a84c, #f5d78e, #c9a84c);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 0;
+    animation: soulReveal 2s 0.5s forwards;
+  }
+  @keyframes soulReveal {
+    0% { opacity: 0; filter: blur(20px); }
+    100% { opacity: 1; filter: blur(0); }
+  }
+  .s7b-sub {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 300;
+    font-size: clamp(1rem, 2.2vw, 1.6rem);
+    color: rgba(255,255,255,0.5);
+    line-height: 2;
+    margin-top: 2rem;
+  }
+  .s7b-sub strong {
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .s7b-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, #2a1a00 0%, #000 60%);
+  }
+  .light-rays {
+    position: absolute;
+    inset: 0;
+    background: conic-gradient(from 180deg at 50% 50%,
+      transparent 0deg,
+      rgba(201,168,76,0.03) 10deg,
+      transparent 20deg,
+      rgba(201,168,76,0.02) 30deg,
+      transparent 40deg,
+      rgba(201,168,76,0.03) 50deg,
+      transparent 60deg
+    );
+    animation: rotate 30s linear infinite;
+  }
+  @keyframes rotate { to { transform: rotate(360deg); } }
+
+  /* ─── SLIDE 10: CLOSING ─── */
+  #s10 {
+    background: #000;
+    flex-direction: column;
+  }
+  .s10-bg {
+    position: absolute;
+    inset: 0;
+  }
+  .s10-horizon {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40%;
+    background: linear-gradient(to top, #1a0a00, transparent);
+  }
+  .s10-stars {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.9), transparent),
+      radial-gradient(1px 1px at 75% 15%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1px 1px at 45% 35%, white, transparent),
+      radial-gradient(1px 1px at 85% 45%, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1px 1px at 25% 65%, rgba(255,255,255,0.8), transparent),
+      radial-gradient(2px 2px at 60% 20%, white, transparent),
+      radial-gradient(1px 1px at 90% 75%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 35% 80%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1px 1px at 55% 55%, white, transparent),
+      radial-gradient(1px 1px at 10% 45%, rgba(255,255,255,0.4), transparent);
+  }
+  .s10-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 850px;
+    padding: 2rem;
+  }
+  .s10-eyebrow {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.6em;
+    font-size: 0.85rem;
+    color: var(--gold);
+    margin-bottom: 3rem;
+    opacity: 0.7;
+  }
+  .s10-title {
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 3rem;
+  }
+  .s10-title .line2 {
+    display: block;
+    color: var(--gold);
+  }
+  .s10-poem {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 300;
+    font-size: clamp(0.95rem, 1.8vw, 1.3rem);
+    color: rgba(255,255,255,0.45);
+    line-height: 2.5;
+    margin-bottom: 3rem;
+  }
+  .s10-poem strong {
+    color: rgba(255,255,255,0.85);
+    font-weight: 400;
+  }
+  .s10-final {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    border-top: 1px solid rgba(201,168,76,0.3);
+    padding-top: 2rem;
+  }
+  .s10-continue {
+    margin-top: 2.5rem;
+    padding: 1.2rem 2rem;
+    border: 1px solid rgba(201,168,76,0.2);
+    background: rgba(201,168,76,0.04);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    color: rgba(255,255,255,0.4);
+    line-height: 2;
+    letter-spacing: 0.08em;
+  }
+  .s10-continue strong {
+    color: rgba(201,168,76,0.8);
+    font-weight: 400;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .s3-content, .s4-content, .vs-layout { grid-template-columns: 1fr; }
+    .s3-right, .s4-visual { display: none; }
+    .vs-side { height: auto; min-height: 50vh; }
+    .vs-divider { display: none; }
+    .s1-content { padding-right: 8%; }
+    .s1-visual { display: none; }
+    .s4-text { padding: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#s1" class="active"></a>
+  <a href="#s1b"></a>
+  <a href="#s2"></a>
+  <a href="#s3"></a>
+  <a href="#s4"></a>
+  <a href="#s5"></a>
+  <a href="#s6"></a>
+  <a href="#s7"></a>
+  <a href="#s7b"></a>
+  <a href="#s8"></a>
+  <a href="#s8b2"></a>
+  <a href="#s8b3"></a>
+  <a href="#s8b4"></a>
+  <a href="#s8b5"></a>
+  <a href="#s9"></a>
+  <a href="#s10"></a>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 1: TITLE
+═══════════════════════════════════════════ -->
+<section class="slide" id="s1">
+  <div class="s1-bg"></div>
+  <div class="s1-stars"></div>
+
+  <!-- DNA-like helix SVG -->
+  <svg class="s1-visual" viewBox="0 0 300 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+        <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <g filter="url(#glow)" opacity="0.8">
+      <!-- Helix strand 1 -->
+      <path d="M80 20 Q180 60 80 100 Q-20 140 80 180 Q180 220 80 260 Q-20 300 80 340 Q180 380 80 420 Q-20 460 80 500"
+        stroke="rgba(79,195,247,0.6)" stroke-width="2" fill="none">
+        <animate attributeName="stroke-dashoffset" values="1000;0" dur="3s" fill="freeze"/>
+        <animateTransform attributeName="transform" type="translate" values="0,0;0,-10;0,0" dur="4s" repeatCount="indefinite"/>
+      </path>
+      <!-- Helix strand 2 -->
+      <path d="M220 20 Q120 60 220 100 Q320 140 220 180 Q120 220 220 260 Q320 300 220 340 Q120 380 220 420 Q320 460 220 500"
+        stroke="rgba(201,168,76,0.5)" stroke-width="2" fill="none">
+        <animateTransform attributeName="transform" type="translate" values="0,0;0,-10;0,0" dur="4s" begin="0.5s" repeatCount="indefinite"/>
+      </path>
+      <!-- Cross rungs -->
+      <line x1="80" y1="60" x2="220" y2="60" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+      <line x1="80" y1="140" x2="220" y2="140" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+      <line x1="80" y1="220" x2="220" y2="220" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+      <line x1="80" y1="300" x2="220" y2="300" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+      <line x1="80" y1="380" x2="220" y2="380" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+      <line x1="80" y1="460" x2="220" y2="460" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+      <!-- Nodes -->
+      <circle cx="80" cy="60" r="5" fill="rgba(79,195,247,0.8)"/>
+      <circle cx="220" cy="60" r="5" fill="rgba(201,168,76,0.8)"/>
+      <circle cx="80" cy="220" r="5" fill="rgba(79,195,247,0.8)"/>
+      <circle cx="220" cy="220" r="5" fill="rgba(201,168,76,0.8)"/>
+      <circle cx="80" cy="380" r="5" fill="rgba(79,195,247,0.8)"/>
+      <circle cx="220" cy="380" r="5" fill="rgba(201,168,76,0.8)"/>
+    </g>
+  </svg>
+
+  <div class="s1-content">
+    <div class="s1-sub">AI TIME · 2026</div>
+    <h1 class="s1-title">
+      대체<span>불가</span><br>인간
+    </h1>
+    <p class="s1-desc">AI가 열지 못한 블랙박스</p>
+    <div class="s1-line"></div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 1b: SPEAKER
+═══════════════════════════════════════════ -->
+<section class="slide" id="s1b">
+  <div class="s1b-bg"></div>
+  <div class="s1b-line-v"></div>
+
+  <div class="s1b-layout">
+
+    <!-- PHOTO -->
+    <div class="s1b-photo-side">
+      <div class="s1b-photo-wrap">
+        <div class="s1b-corner-tr"></div>
+        <img src="inae.jpg" alt="Speaker" />
+      </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="s1b-info-side">
+      <div class="s1b-eyebrow">SPEAKER</div>
+      <div class="s1b-name">허인애</div>
+      <div class="s1b-name-en">INAE HUR</div>
+      <div class="s1b-divider"></div>
+
+      <div class="s1b-roles">
+        <div class="s1b-role">
+          <div class="s1b-role-org">CURRENT · LASERVALL CO. LTD. · HONG KONG</div>
+          <div class="s1b-role-title">AI Center Head</div>
+        </div>
+        <div class="s1b-role">
+          <div class="s1b-role-org">PREV · U.S. NATIONAL INSTITUTES OF HEALTH · BETHESDA, MD</div>
+          <div class="s1b-role-title past">Data Scientist — Image Processing</div>
+        </div>
+      </div>
+
+      <div class="s1b-edu">
+        <div class="s1b-edu-label">EDUCATION</div>
+        <div class="s1b-edu-text">
+          University of Iowa<br>
+          Ph.D. Biomedical Engineering<br>
+          <span style="color:rgba(255,255,255,0.25);font-size:0.85em">Computer Vision · Machine Learning Algorithm</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 2: THE QUESTION
+═══════════════════════════════════════════ -->
+<section class="slide" id="s2">
+  <div class="s2-bg" id="s2grid"></div>
+  <div class="s2-big">....???</div>
+  <div class="s2-content">
+    <div class="question-line">열심히 공부했는데...</div>
+    <div class="question-line">스펙 쌓았는데...</div>
+    <div style="height:2rem"></div>
+    <div class="question-line">내 직업, 10년 후에도 있을까<span class="question-mark">?</span></div>
+    <div class="question-line">나만 뒤처지고 있는 건 아닐까<span class="question-mark">?</span></div>
+    <div style="height:2rem"></div>
+    <div class="question-line highlight">그래서... 나는 뭐가 있지<span class="question-mark">?</span></div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 3: RESEARCH — CELL LAB
+═══════════════════════════════════════════ -->
+<section class="slide" id="s3">
+  <canvas class="cell-canvas" id="cellCanvas"></canvas>
+  <div class="s3-content">
+    <div class="s3-left">
+      <div class="s3-label">BIOMEDICAL ENGINEERING · COMPUTER VISION</div>
+      <h2 class="s3-heading">암세포와<br><em>약물</em>의<br>만남</h2>
+      <p class="s3-body">
+        수천 개의 세포 이미지<br>
+        어떤 약물에 반응하는가<br>
+        가능성 있는 것만 <em style="color:var(--cell-glow);font-style:normal">선별</em>하는 플랫폼
+      </p>
+    </div>
+    <div class="s3-right">
+      <div class="microscope-frame" id="microFrame">
+        <div class="grid-overlay"></div>
+        <!-- cells injected by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 4: EACH CELL IS DIFFERENT
+═══════════════════════════════════════════ -->
+<section class="slide" id="s4">
+  <div class="s4-content">
+    <div class="s4-visual">
+      <div class="cell-grid" id="cellGrid"></div>
+    </div>
+    <div class="s4-text">
+      <div class="s4-label">DISCOVERY 01</div>
+      <div class="s4-divider"></div>
+      <h2 class="s4-heading">
+        같은 세포도<br>
+        반응이<br>
+        <span class="accent">전부 달랐다</span>
+      </h2>
+      <p class="s4-subtext">
+        겉으로는 똑같아 보여도<br>
+        각자를 살아나게 하는 것은<br>
+        완전히 다릅니다
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 5: BLACK BOX
+═══════════════════════════════════════════ -->
+<section class="slide" id="s5" style="flex-direction:column; gap: 2rem;">
+  <h2 class="s5-title">입력도 알고, 출력도 보이는데<br><span>설명이 안 됐다</span></h2>
+
+  <div style="
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 100%;
+  ">
+    <!-- INPUT -->
+    <div style="text-align:center;">
+      <div style="
+        width: min(300px, 28vw);
+        overflow: hidden;
+        border: 1px solid rgba(79,195,247,0.3);
+        box-shadow: 0 0 20px rgba(79,195,247,0.15);
+        margin-bottom: 0.6rem;
+      ">
+        <video src="cell_tracking.mp4" autoplay muted loop playsinline
+          style="width:100%;display:block;pointer-events:none;">
+        </video>
+      </div>
+      <div class="bbox-label">INPUT<br>세포 이미지</div>
+    </div>
+
+    <!-- ARROW LEFT -->
+    <div style="
+      width: min(60px, 5vw);
+      height: 2px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.1));
+      flex-shrink: 0;
+    "></div>
+
+    <!-- BLACK BOX -->
+    <div style="
+      width: min(140px, 13vw);
+      height: min(320px, 32vw);
+      background: #0a0a0a;
+      border: 2px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.9);
+      flex-shrink: 0;
+    ">
+      <span style="
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: clamp(4rem, 8vw, 6rem);
+        color: rgba(255,255,255,0.05);
+      ">?</span>
+    </div>
+
+    <!-- ARROW RIGHT -->
+    <div style="
+      width: min(60px, 5vw);
+      height: 2px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.6));
+      flex-shrink: 0;
+    "></div>
+
+    <!-- OUTPUT -->
+    <div style="text-align:center;">
+      <div style="
+        width: min(300px, 28vw);
+        overflow: hidden;
+        border: 1px solid rgba(79,195,247,0.3);
+        box-shadow: 0 0 20px rgba(79,195,247,0.15);
+        margin-bottom: 0.6rem;
+      ">
+        <img src="cell_tracking_result.png"
+          style="width:100%;display:block;pointer-events:none;">
+      </div>
+      <div class="bbox-label">OUTPUT<br>반응 결과</div>
+    </div>
+  </div>
+
+  <p class="s5-sub">
+    단 하나의 세포에도<br>
+    과학이 <span class="glow-text">열지 못한</span> 블랙박스가 있었다
+  </p>
+</section>
+
+  <p class="s5-sub">
+    단 하나의 세포에도<br>
+    과학이 <span class="glow-text">열지 못한</span> 블랙박스가 있었다
+  </p>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 6: fMRI / BRAIN
+═══════════════════════════════════════════ -->
+<section class="slide" id="s6">
+  <!-- Abstract brain background -->
+  <div class="brain-scene">
+    <svg width="600" height="500" viewBox="0 0 600 500" opacity="0.12">
+      <defs>
+        <radialGradient id="brainGrad" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="#7b2fff"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+      </defs>
+      <!-- Abstract brain contour -->
+      <ellipse cx="300" cy="220" rx="180" ry="150" fill="none" stroke="rgba(120,80,255,0.4)" stroke-width="2"/>
+      <ellipse cx="300" cy="220" rx="120" ry="100" fill="none" stroke="rgba(120,80,255,0.25)" stroke-width="1"/>
+      <ellipse cx="300" cy="220" rx="60" ry="50" fill="none" stroke="rgba(120,80,255,0.15)" stroke-width="1"/>
+      <!-- Activation spots -->
+      <circle cx="240" cy="180" r="20" fill="rgba(255,100,100,0.4)">
+        <animate attributeName="opacity" values="0.3;0.9;0.3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="360" cy="200" r="15" fill="rgba(100,200,255,0.4)">
+        <animate attributeName="opacity" values="0.3;0.9;0.3" dur="2.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="300" cy="260" r="18" fill="rgba(255,200,50,0.35)">
+        <animate attributeName="opacity" values="0.3;0.9;0.3" dur="1.8s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="210" cy="240" r="12" fill="rgba(100,255,150,0.3)">
+        <animate attributeName="opacity" values="0.3;0.9;0.3" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <!-- Scan lines -->
+      <line x1="120" y1="160" x2="480" y2="160" stroke="rgba(120,80,255,0.1)" stroke-width="1" stroke-dasharray="4,8">
+        <animateTransform attributeName="transform" type="translate" values="0,0;0,120;0,0" dur="4s" repeatCount="indefinite"/>
+      </line>
+    </svg>
+  </div>
+
+  <div class="s6-content">
+    <div class="s6-label">fMRI · NEUROSCIENCE · DISCOVERY 02</div>
+    <div class="fmri-questions">
+      <div class="fmri-q">뇌를 아무리 정밀하게 찍어도</div>
+      <div class="fmri-q active">왜 이 사람은 살고 싶어하는가</div>
+      <div class="fmri-q active">왜 이 음악을 들으면 눈물이 나는가</div>
+      <div class="fmri-q active">왜 이 선택이 옳다고 느껴지는가</div>
+    </div>
+    <p class="s6-verdict">
+      fMRI로는 <strong>절대 나오지 않습니다</strong><br>
+      인류 최고의 과학도 아직 열지 못한 블랙박스<br>
+      의식 · 의지 · 정신 · <span class="glow-text"><strong>마음</strong></span>
+    </p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 7: AI VS HUMAN
+═══════════════════════════════════════════ -->
+<section class="slide" id="s7">
+  <div class="vs-layout">
+    <!-- AI SIDE -->
+    <div class="vs-side ai-side">
+      <div class="vs-tag">ARTIFICIAL INTELLIGENCE</div>
+      <div class="vs-name">A.I.</div>
+      <div class="vs-items">
+        <div class="vs-item">
+          <div class="vs-item-icon">✓</div>
+          <span>패턴 학습 · 데이터 분석</span>
+        </div>
+        <div class="vs-item">
+          <div class="vs-item-icon">✓</div>
+          <span>글쓰기 · 그림 · 코딩</span>
+        </div>
+        <div class="vs-item">
+          <div class="vs-item-icon">✓</div>
+          <span>수백만 개 이미지 처리</span>
+        </div>
+        <div class="vs-item" style="margin-top:1rem; opacity:0.4">
+          <div class="vs-item-icon">✗</div>
+          <span>새벽 3시 이유 모를 눈물</span>
+        </div>
+        <div class="vs-item" style="opacity:0.4">
+          <div class="vs-item-icon">✗</div>
+          <span>설명 안 되는 이끌림</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div class="vs-divider">
+      <div class="vs-circle">VS</div>
+    </div>
+
+    <!-- HUMAN SIDE -->
+    <div class="vs-side human-side">
+      <div class="vs-tag">YOU · 당신</div>
+      <div class="vs-name">HUMAN</div>
+      <div class="vs-items">
+        <div class="vs-item">
+          <div class="vs-item-icon">✦</div>
+          <span>설명할 수 없는 직관</span>
+        </div>
+        <div class="vs-item">
+          <div class="vs-item-icon">✦</div>
+          <span>고통을 통한 성장</span>
+        </div>
+        <div class="vs-item">
+          <div class="vs-item-icon">✦</div>
+          <span>진짜 눈물 · 진짜 사랑</span>
+        </div>
+        <div class="vs-item">
+          <div class="vs-item-icon">✦</div>
+          <span>의미를 창조하는 힘</span>
+        </div>
+      </div>
+      <!--div class="blackbox-badge">
+        AI에게는 블랙박스가 없습니다<br>
+        <strong style="color:var(--gold)">당신에게만 있습니다</strong>
+      </div-->
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 7b: SOUL DECLARATION
+═══════════════════════════════════════════ -->
+<section class="slide" id="s7b">
+  <div class="s7b-bg"></div>
+  <div class="light-rays"></div>
+
+  <canvas id="particleCanvas" style="position:absolute;inset:0;pointer-events:none"></canvas>
+
+  <div class="s9-content">
+    <span class="soul-word" data-text="마음">마음</span>
+    <p class="s7b-sub">
+      단 하나의 세포도 완전히 예측하지 못했듯이<br>
+      <strong>당신은 어떤 알고리즘도 예측할 수 없습니다</strong><br><br>
+      AI에게는 없는 블랙박스<br>
+      <strong>당신 안에만 존재하는 것</strong>
+    </p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 8: YOUR HEART — WHAT MAKES YOU REACT
+═══════════════════════════════════════════ -->
+<section class="slide" id="s8">
+  <div class="s8-bg"></div>
+
+  <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none">
+    <div style="position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(179,157,219,0.08),transparent);top:10%;left:5%;animation:float1 8s ease-in-out infinite"></div>
+    <div style="position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,0.06),transparent);bottom:15%;right:8%;animation:float2 10s ease-in-out infinite"></div>
+  </div>
+  <style>
+    @keyframes float1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-30px)} }
+    @keyframes float2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(20px)} }
+  </style>
+
+  <div class="s8-content">
+    <div class="s8-eyebrow">THE CORE QUESTION</div>
+    <p class="s8-question">
+      수많은 약물 중에서<br>
+      암세포에 <em style="color:rgba(255,255,255,0.8);font-style:normal">반응하는 것</em>을 찾듯이
+    </p>
+
+    <div class="reaction-dots">
+      <div class="rdot" style="background:#4fc3f7;--d:1.3s"></div>
+      <div class="rdot" style="background:#b39ddb;--d:1.7s"></div>
+      <div class="rdot" style="background:#c9a84c;--d:1.1s"></div>
+      <div class="rdot" style="background:#ef9a9a;--d:2s"></div>
+      <div class="rdot" style="background:#a5d6a7;--d:1.5s"></div>
+    </div>
+
+    <h2 class="s8-main">
+      당신의 <span class="gold">마음</span>이<br>
+      반응하는 것은<br>
+      무엇입니까
+    </h2>
+
+    <p class="s8-sub">
+      남들이 다 좋다는 것 말고<br>
+      내 마음이 반응하는 것 · 이유도 모르게 설레는 것<br>
+      하고 나서 살아있다는 느낌이 드는 것
+    </p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 8b-2: 돈이 되는 것
+═══════════════════════════════════════════ -->
+<section class="slide" id="s8b2">
+  <div class="s8b-bg"></div>
+  <div class="s8b-content">
+    <div class="s8b-eyebrow">01</div>
+    <h2 style="
+      font-family:'Noto Serif KR',serif;
+      font-size:clamp(3rem,8vw,6rem);
+      font-weight:900;
+      color:rgba(255,255,255,0.5);
+      line-height:1.1;
+      margin-bottom:1.5rem;
+    ">돈이 되는 것</h2>
+    <p style="
+      font-family:'Noto Sans KR',sans-serif;
+      font-weight:300;
+      font-size:clamp(0.85rem,1.4vw,1rem);
+      color:rgba(255,255,255,0.2);
+      letter-spacing:0.1em;
+      line-height:2;
+      margin-bottom:1.5rem;
+    ">코딩 배우기 · 자격증 따기 · 유튜브 시작하기<br>재테크 · 주식 · 부업 찾기</p>
+  </div>
+</section>
+ 
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 8b-3: 남들이 좋다는 것
+═══════════════════════════════════════════ -->
+<section class="slide" id="s8b3">
+  <div class="s8b-bg"></div>
+  <div class="s8b-content">
+    <div class="s8b-eyebrow">02</div>
+    <h2 style="
+      font-family:'Noto Serif KR',serif;
+      font-size:clamp(3rem,8vw,6rem);
+      font-weight:900;
+      color:rgba(255,255,255,0.5);
+      line-height:1.1;
+      margin-bottom:1.5rem;
+    ">남들이 좋다는 것</h2>
+    <p style="
+      font-family:'Noto Sans KR',sans-serif;
+      font-weight:300;
+      font-size:clamp(0.85rem,1.4vw,1rem);
+      color:rgba(255,255,255,0.2);
+      letter-spacing:0.1em;
+      line-height:2;
+      margin-bottom:1.5rem;
+    ">다들 하니까 MBA · SNS 자기계발 루틴 따라하기<br>부모님이 좋다는 직업 · 친구가 추천한 책</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 8b-4: 불안을 없애는 것
+═══════════════════════════════════════════ -->
+<section class="slide" id="s8b4">
+  <div class="s8b-bg"></div>
+  <div class="s8b-content">
+    <div class="s8b-eyebrow">03</div>
+    <h2 style="
+      font-family:'Noto Serif KR',serif;
+      font-size:clamp(3rem,8vw,6rem);
+      font-weight:900;
+      color:rgba(255,255,255,0.5);
+      line-height:1.1;
+      margin-bottom:1.5rem;
+    ">불안을 없애는 것</h2>
+    <p style="
+      font-family:'Noto Sans KR',sans-serif;
+      font-weight:300;
+      font-size:clamp(0.85rem,1.4vw,1rem);
+      color:rgba(255,255,255,0.2);
+      letter-spacing:0.1em;
+      line-height:2;
+      margin-bottom:1.5rem;
+    ">AI 뉴스 계속 찾아보기 · 스펙 하나 더 쌓기<br>바쁘게 움직이는 것 자체가 목적이 되는 것</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 8b-5: 마음을 가꿔야 합니다
+═══════════════════════════════════════════ -->
+<section class="slide" id="s8b5">
+  <div class="s8b-bg"></div>
+  <div class="s8b-content">
+    <p class="s8b-verdict">
+      모두 <em>AI가 이미 더 잘하는 것들</em>입니다.<br><br>
+      마음이 있다는 것만으로는 부족해요.<br>
+      <em>그 마음을 가꿔야 합니다.</em>
+    </p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 9: CULTIVATE — 마음을 가꾼다
+═══════════════════════════════════════════ -->
+<section class="slide" id="s9">
+  <div class="s9-bg"></div>
+
+  <div class="s9-content">
+    <div class="s9-label">YOUR HEART IS A MUSCLE</div>
+
+    <h2 class="s9-main">
+      지금 당신의 마음에<br>
+      마지막으로 뭔가를 준 게<br>
+      <em>언제예요?</em>
+    </h2>
+
+    <div class="s9-divider-line"></div>
+
+    <p class="s9-analogy">
+      세포도 아무 자극이 없으면 — 반응 자체가 없습니다.<br>
+      마음도 근육입니다.<br>
+      쓰지 않으면 — <strong style="color:var(--white)">반응이 사라집니다.</strong>
+    </p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 10: CLOSING — 다음을 기약
+═══════════════════════════════════════════ -->
+<section class="slide" id="s10">
+  <div class="s10-bg">
+    <div class="s10-stars"></div>
+    <div class="s10-horizon"></div>
+  </div>
+
+  <div class="s10-content">
+    <div class="s10-eyebrow">TO BE CONTINUED</div>
+    <h2 class="s10-title">
+      오늘은
+      <span class="line2">여기까지</span>
+    </h2>
+    <p class="s10-poem">
+      마음을 가꾼다는 것이 무엇인지<br>
+      어떻게 트레이닝하는 건지 —<br><br>
+      <strong>그 이야기는 계속됩니다</strong>
+    </p>
+    <div class="s10-final">
+      NEXT SESSION
+    </div>
+    <div class="s10-continue">
+      <strong>4월 2일 · 7:30 PM</strong><br>
+      마음의 색깔을 칠해보는 시간
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+// ── NAV active state ──
+const sections = document.querySelectorAll('.slide');
+const navLinks = document.querySelectorAll('.nav a');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const idx = Array.from(sections).indexOf(e.target);
+      if (navLinks[idx]) navLinks[idx].classList.add('active');
+    }
+  });
+}, { threshold: 0.5 });
+sections.forEach(s => observer.observe(s));
+
+// ── Slide navigation ──
+const slideIds = Array.from(sections).map(s => s.id);
+let currentIdx = 0;
+let isScrolling = false;
+
+function goToSlide(idx) {
+  if (idx < 0 || idx >= slideIds.length) return;
+  currentIdx = idx;
+  sections[currentIdx].scrollIntoView({ behavior: 'smooth' });
+}
+
+// Keyboard arrows
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+    e.preventDefault();
+    goToSlide(currentIdx + 1);
+  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+    e.preventDefault();
+    goToSlide(currentIdx - 1);
+  }
+});
+
+// Nav dot clicks — sync currentIdx
+navLinks.forEach((link, i) => {
+  link.addEventListener('click', () => { currentIdx = i; });
+});
+
+// Disable scroll wheel / touch swipe (nav dots and keyboard only)
+document.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
+document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+
+// ── S2 grid ──
+const grid = document.getElementById('s2grid');
+for (let i = 0; i < 48; i++) grid.appendChild(document.createElement('div'));
+
+// ── S3 Microscope Cells ──
+const frame = document.getElementById('microFrame');
+const cellData = [
+  { w: 60, h: 55, top: '15%', left: '20%', dur: 7 },
+  { w: 45, h: 42, top: '55%', left: '55%', dur: 9 },
+  { w: 35, h: 38, top: '25%', left: '60%', dur: 6 },
+  { w: 50, h: 48, top: '65%', left: '15%', dur: 8 },
+  { w: 28, h: 30, top: '40%', left: '35%', dur: 5 },
+  { w: 40, h: 36, top: '75%', left: '70%', dur: 10 },
+];
+cellData.forEach((c, i) => {
+  const el = document.createElement('div');
+  el.className = 'cell';
+  Object.assign(el.style, {
+    width: c.w+'px', height: c.h+'px',
+    top: c.top, left: c.left,
+    animationDuration: c.dur+'s',
+    animationDelay: (i*0.8)+'s'
+  });
+  frame.appendChild(el);
+  // tracking lines
+  const line = document.createElement('div');
+  line.className = 'tracking-line';
+  Object.assign(line.style, {
+    top: c.top, left: c.left, width: '60px',
+    animationDuration: (c.dur*0.7)+'s',
+    animationDelay: (i*1.2)+'s'
+  });
+  frame.appendChild(line);
+});
+
+// Target rings
+[[50,50,80],[30,60,50],[70,35,40]].forEach(([l,t,s]) => {
+  const r = document.createElement('div');
+  r.className = 'target-ring';
+  Object.assign(r.style, {
+    width: s+'px', height: s+'px',
+    left: l+'%', top: t+'%',
+  });
+  frame.appendChild(r);
+});
+
+// ── S3 Canvas background particles ──
+const canvas = document.getElementById('cellCanvas');
+const ctx = canvas.getContext('2d');
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const particles = Array.from({length: 60}, () => ({
+  x: Math.random() * window.innerWidth,
+  y: Math.random() * window.innerHeight,
+  r: Math.random() * 1.5 + 0.5,
+  vx: (Math.random()-0.5)*0.3,
+  vy: (Math.random()-0.5)*0.3,
+  alpha: Math.random() * 0.4 + 0.1,
+}));
+
+function animParticles() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = canvas.width;
+    if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height;
+    if (p.y > canvas.height) p.y = 0;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(79,195,247,${p.alpha})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(animParticles);
+}
+animParticles();
+
+// ── S4 Cell Grid ──
+const cgrid = document.getElementById('cellGrid');
+const colors = ['#4fc3f7','#b39ddb','#c9a84c','#ef9a9a','#a5d6a7','#80cbc4'];
+const reactPattern = [1,0,1,0,1,1,0,1,0,0,1,0,1,1,0,0,1,0,1,1,0,1,0,0,1];
+reactPattern.forEach((reacts, i) => {
+  const el = document.createElement('div');
+  el.className = 'cell-item ' + (reacts ? 'react' : 'no-react');
+  const c = colors[i % colors.length];
+  if (reacts) {
+    el.style.setProperty('--c', c);
+    el.style.background = c.replace(')',',0.12)').replace('rgb','rgba').replace('#', 'rgba(').replace(/^rgba\(([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2}),/, (_, r, g, b) => `rgba(${parseInt(r,16)},${parseInt(g,16)},${parseInt(b,16)},`);
+    // simpler approach:
+    el.style.background = `${c}20`;
+    el.style.boxShadow = `0 0 15px ${c}60, inset 0 0 8px ${c}30`;
+    el.style.border = `2px solid ${c}80`;
+  }
+  el.style.setProperty('--dur', (1.5 + Math.random())+'s');
+  cgrid.appendChild(el);
+});
+
+// ── S9 Particle Canvas ──
+const pc = document.getElementById('particleCanvas');
+const pctx = pc.getContext('2d');
+pc.width = window.innerWidth;
+pc.height = window.innerHeight;
+window.addEventListener('resize', () => {
+  pc.width = window.innerWidth;
+  pc.height = window.innerHeight;
+});
+
+const goldParticles = Array.from({length:80}, () => ({
+  x: Math.random() * window.innerWidth,
+  y: Math.random() * window.innerHeight,
+  r: Math.random() * 2 + 0.3,
+  vx: (Math.random()-0.5)*0.2,
+  vy: -Math.random()*0.5 - 0.1,
+  alpha: Math.random() * 0.5 + 0.1,
+  life: Math.random(),
+}));
+
+function animGold() {
+  pctx.clearRect(0,0,pc.width,pc.height);
+  goldParticles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    p.life -= 0.003;
+    if (p.life <= 0 || p.y < 0) {
+      p.x = Math.random() * pc.width;
+      p.y = pc.height + 10;
+      p.life = Math.random();
+    }
+    pctx.beginPath();
+    pctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    pctx.fillStyle = `rgba(201,168,76,${p.alpha * p.life})`;
+    pctx.fill();
+  });
+  requestAnimationFrame(animGold);
+}
+animGold();
+</script>
+</body>
+</html>
