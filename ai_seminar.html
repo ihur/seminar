@@ -3,551 +3,267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 이야기 — 우리 삶 속의 인공지능</title>
+    <title>AI 이야기 — 신기한 세상이 왔습니다</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
 
         :root {
-            --bg-deep:    #0d0d1a;
-            --bg-card:    rgba(255,255,255,0.06);
-            --bg-card-hover: rgba(255,255,255,0.11);
-            --accent1: #7c6ef7;
-            --accent2: #4ec9c0;
-            --accent3: #f7c76e;
-            --accent-red: #f76e6e;
-            --text-main: #eeeeff;
-            --text-dim:  rgba(238,238,255,0.65);
-            --border:    rgba(255,255,255,0.10);
+            --bg:         #f8f6f1;
+            --bg-card:    #ffffff;
+            --accent1:    #1d4ed8;
+            --accent2:    #047857;
+            --accent3:    #b45309;
+            --accent-red: #b91c1c;
+            --text-main:  #111827;
+            --text-dim:   #374151;
+            --border:     #d1ccc0;
+            --shadow:     0 4px 20px rgba(0,0,0,0.09);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html { font-size: 20px; }
+
         body {
             font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-            background: var(--bg-deep);
+            background: var(--bg);
             color: var(--text-main);
             overflow: hidden;
             height: 100vh;
         }
 
-        /* ─── 배경 그라디언트 오브 ─── */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background:
-                radial-gradient(ellipse 60% 50% at 20% 20%, rgba(124,110,247,0.18) 0%, transparent 70%),
-                radial-gradient(ellipse 50% 60% at 80% 80%, rgba(78,201,192,0.14) 0%, transparent 70%),
-                radial-gradient(ellipse 40% 40% at 60% 10%, rgba(247,199,110,0.08) 0%, transparent 60%);
-            pointer-events: none;
-            z-index: 0;
+        .progress-bar {
+            position: fixed; top: 0; left: 0; height: 6px;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            transition: width 0.4s ease; z-index: 200;
         }
+        .slide-num { display: none; }
 
-        /* ─── 슬라이드 기본 ─── */
         .slide {
-            position: absolute;
-            inset: 0;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 60px 80px;
-            z-index: 1;
-            opacity: 0;
-            transform: translateY(24px);
-            transition: opacity 0.45s ease, transform 0.45s ease;
+            position: absolute; inset: 0;
+            display: none; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 56px 90px; z-index: 1;
+            opacity: 0; transform: translateY(18px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
-        .slide.active {
-            display: flex;
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+        .content { max-width: 1080px; width: 100%; }
 
-        .content {
-            max-width: 1020px;
-            width: 100%;
-        }
-
-        /* ─── 타이포 ─── */
         .slide-label {
-            font-size: 0.78em;
-            font-weight: 500;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--accent1);
-            margin-bottom: 18px;
-            opacity: 0.85;
+            font-size: 1.1em; font-weight: 700; letter-spacing: 0.1em;
+            color: var(--accent1); margin-bottom: 18px;
+            display: inline-block;
+            background: rgba(29,78,216,0.09);
+            padding: 7px 22px; border-radius: 100px;
         }
 
-        h1 {
-            font-size: 3.8em;
-            font-weight: 900;
-            line-height: 1.15;
-            margin-bottom: 20px;
-            background: linear-gradient(120deg, #fff 30%, var(--accent1) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+        h1 { font-size: 3.6em; font-weight: 900; line-height: 1.2; margin-bottom: 24px; color: var(--text-main); }
+        h2 { font-size: 2.4em; font-weight: 900; line-height: 1.25; margin-bottom: 26px; color: var(--text-main); }
+        h2 .blue   { color: var(--accent1); }
+        h2 .green  { color: var(--accent2); }
+        h2 .orange { color: var(--accent3); }
+        h2 .red    { color: var(--accent-red); }
+        h3 { font-size: 1.3em; font-weight: 700; margin-bottom: 12px; color: var(--text-main); }
+        p.lead { font-size: 1.3em; line-height: 1.9; color: var(--text-dim); margin-bottom: 20px; }
 
-        h2 {
-            font-size: 2.4em;
-            font-weight: 800;
-            line-height: 1.25;
-            margin-bottom: 32px;
-            color: var(--text-main);
-        }
-        h2 .accent { color: var(--accent3); }
-
-        h3 {
-            font-size: 1.3em;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--accent2);
-        }
-
-        p.lead {
-            font-size: 1.35em;
-            line-height: 1.8;
-            color: var(--text-dim);
-            margin-bottom: 14px;
-        }
-
-        /* ─── 카드 그리드 ─── */
-        .grid {
-            display: grid;
-            gap: 18px;
-            margin-top: 10px;
-        }
+        .grid { display: grid; gap: 20px; margin-top: 12px; }
         .col2 { grid-template-columns: 1fr 1fr; }
         .col3 { grid-template-columns: 1fr 1fr 1fr; }
-        .col4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 
         .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 26px 24px;
-            backdrop-filter: blur(12px);
-            transition: background 0.3s, transform 0.3s;
+            background: var(--bg-card); border: 2px solid var(--border);
+            border-radius: 20px; padding: 28px 26px;
+            box-shadow: var(--shadow); transition: transform 0.22s;
         }
-        .card:hover {
-            background: var(--bg-card-hover);
-            transform: translateY(-4px);
-        }
-        .card .icon {
-            font-size: 2.2em;
-            margin-bottom: 12px;
-            display: block;
-        }
-        .card h3 { font-size: 1.1em; color: var(--text-main); margin-bottom: 8px; }
-        .card p, .card li {
-            font-size: 0.95em;
-            line-height: 1.75;
-            color: var(--text-dim);
-        }
-        .card ul { padding-left: 16px; }
+        .card:hover { transform: translateY(-3px); }
+        .card .icon { font-size: 2.6em; margin-bottom: 14px; display: block; }
+        .card h3 { font-size: 1.2em; margin-bottom: 10px; }
+        .card p, .card li { font-size: 1.05em; line-height: 1.85; color: var(--text-dim); }
+        .card ul { padding-left: 18px; }
+        .card.blue   { border-top: 5px solid var(--accent1); }
+        .card.green  { border-top: 5px solid var(--accent2); }
+        .card.orange { border-top: 5px solid var(--accent3); }
+        .card.red    { border-top: 5px solid var(--accent-red); }
 
-        /* ─── 구분선 카드 (색상 top border) ─── */
-        .card.red   { border-top: 3px solid var(--accent-red); }
-        .card.blue  { border-top: 3px solid var(--accent1); }
-        .card.teal  { border-top: 3px solid var(--accent2); }
-        .card.gold  { border-top: 3px solid var(--accent3); }
-
-        /* ─── 강조 블록 ─── */
         .highlight-box {
-            background: rgba(124,110,247,0.12);
-            border: 1px solid rgba(124,110,247,0.3);
-            border-radius: 16px;
-            padding: 22px 28px;
-            margin-top: 20px;
-            font-size: 1.05em;
-            line-height: 1.85;
-            color: var(--text-main);
+            background: rgba(29,78,216,0.07); border: 2px solid rgba(29,78,216,0.22);
+            border-radius: 18px; padding: 26px 32px; margin-top: 22px;
+            font-size: 1.15em; line-height: 1.9; color: var(--text-main);
         }
-        .highlight-box.warning {
-            background: rgba(247,110,110,0.10);
-            border-color: rgba(247,110,110,0.30);
-        }
-        .highlight-box.gold {
-            background: rgba(247,199,110,0.10);
-            border-color: rgba(247,199,110,0.30);
-        }
+        .highlight-box.warning { background: rgba(185,28,28,0.06); border-color: rgba(185,28,28,0.28); }
+        .highlight-box.gold    { background: rgba(180,83,9,0.07); border-color: rgba(180,83,9,0.25); }
+        .highlight-box.green   { background: rgba(4,120,87,0.07); border-color: rgba(4,120,87,0.25); }
 
-        /* ─── 타임라인 ─── */
-        .timeline {
-            display: flex;
-            gap: 0;
-            margin-top: 28px;
-            align-items: stretch;
-        }
+        .timeline { display: flex; gap: 0; margin-top: 24px; }
         .tl-item {
-            flex: 1;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-right: none;
-            padding: 22px 18px;
-            text-align: center;
-            transition: background 0.3s, transform 0.3s;
+            flex: 1; background: var(--bg-card); border: 2px solid var(--border);
+            border-right: none; padding: 26px 16px; text-align: center; box-shadow: var(--shadow);
         }
         .tl-item:first-child { border-radius: 16px 0 0 16px; }
-        .tl-item:last-child  { border-radius: 0 16px 16px 0; border-right: 1px solid var(--border); }
-        .tl-item:hover { background: var(--bg-card-hover); transform: translateY(-4px); }
-        .tl-item .tl-year {
-            font-size: 0.78em;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            color: var(--accent1);
-            margin-bottom: 10px;
-        }
-        .tl-item .tl-icon { font-size: 1.8em; margin-bottom: 8px; display: block; }
-        .tl-item .tl-title { font-size: 0.95em; font-weight: 700; margin-bottom: 6px; }
-        .tl-item .tl-desc { font-size: 0.8em; color: var(--text-dim); line-height: 1.5; }
+        .tl-item:last-child  { border-radius: 0 16px 16px 0; border-right: 2px solid var(--border); }
+        .tl-item .tl-year  { font-size: 1em; font-weight: 900; color: var(--accent1); margin-bottom: 10px; }
+        .tl-item .tl-icon  { font-size: 2.2em; margin-bottom: 10px; display: block; }
+        .tl-item .tl-title { font-size: 1.15em; font-weight: 700; margin-bottom: 8px; }
+        .tl-item .tl-desc  { font-size: 1em; color: var(--text-dim); line-height: 1.5; }
 
-        /* ─── VS 비교 ─── */
-        .vs-wrap {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            gap: 16px;
-            align-items: center;
-            margin-top: 10px;
-        }
-        .vs-badge {
-            font-size: 1.6em;
-            font-weight: 900;
-            color: var(--accent3);
-            text-align: center;
-        }
+        .vs-wrap { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center; margin-top: 12px; }
+        .vs-badge { font-size: 2em; font-weight: 900; color: var(--accent3); text-align: center; }
 
-        /* ─── 대화 버블 (환각 챕터용) ─── */
-        .chat-wrap { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
+        .chat-wrap { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
         .bubble {
-            max-width: 76%;
-            padding: 16px 20px;
-            border-radius: 18px;
-            font-size: 1em;
-            line-height: 1.7;
+            max-width: 84%; padding: 16px 22px; border-radius: 18px;
+            font-size: 1.05em; line-height: 1.75; border: 2px solid transparent;
         }
-        .bubble.user {
-            align-self: flex-end;
-            background: rgba(124,110,247,0.25);
-            border: 1px solid rgba(124,110,247,0.35);
-            text-align: right;
-        }
-        .bubble.ai {
-            align-self: flex-start;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-        }
-        .bubble.ai.wrong {
-            border-color: rgba(247,110,110,0.45);
-            background: rgba(247,110,110,0.08);
-        }
-        .bubble-label {
-            font-size: 0.72em;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            opacity: 0.6;
-            margin-bottom: 5px;
-        }
+        .bubble.user { align-self: flex-end; background: rgba(29,78,216,0.09); border-color: rgba(29,78,216,0.22); text-align: right; }
+        .bubble.ai   { align-self: flex-start; background: #fff; border-color: var(--border); }
+        .bubble.ai.wrong { border-color: rgba(185,28,28,0.35); background: rgba(185,28,28,0.05); }
+        .bubble-label { font-size: 0.8em; font-weight: 700; opacity: 0.6; margin-bottom: 4px; }
 
-        /* ─── 경고 스텝 리스트 ─── */
-        .step-list { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+        .word-row { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin: 20px 0; }
+        .word-chip {
+            background: #fff; border: 2px solid var(--border); border-radius: 14px;
+            padding: 16px 30px; font-size: 1.2em; font-weight: 700; cursor: pointer;
+            transition: all 0.22s; color: var(--text-main); box-shadow: var(--shadow);
+        }
+        .word-chip:hover { border-color: var(--accent1); background: #eff6ff; transform: scale(1.05); }
+        .word-chip.selected { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+        .word-chip.blank { background: var(--accent1); border-color: var(--accent1); color: #fff; font-weight: 900; cursor: default; }
+
+        .step-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
         .step-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 16px 20px;
+            display: flex; align-items: flex-start; gap: 18px;
+            background: #fff; border: 2px solid var(--border);
+            border-radius: 14px; padding: 16px 22px; box-shadow: var(--shadow);
         }
         .step-num {
-            min-width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--accent1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 1em;
-            flex-shrink: 0;
+            min-width: 44px; height: 44px; border-radius: 50%; background: var(--accent1);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 1.2em; color: #fff; flex-shrink: 0;
         }
         .step-num.red { background: var(--accent-red); }
-        .step-item p { font-size: 1em; line-height: 1.7; color: var(--text-dim); }
+        .step-item p { font-size: 1.05em; line-height: 1.75; color: var(--text-dim); }
         .step-item p strong { color: var(--text-main); }
 
-        /* ─── 타이틀 슬라이드 전용 ─── */
-        .title-kicker {
-            display: inline-block;
-            font-size: 0.8em;
-            font-weight: 700;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--accent2);
-            border: 1px solid rgba(78,201,192,0.35);
-            border-radius: 100px;
-            padding: 6px 18px;
-            margin-bottom: 28px;
-        }
-        .title-sub {
-            font-size: 1.3em;
-            color: var(--text-dim);
-            line-height: 1.7;
-            max-width: 640px;
-        }
+        .tag { display: inline-block; font-size: 0.85em; font-weight: 700; padding: 5px 14px; border-radius: 100px; margin-bottom: 10px; }
+        .tag.red  { background: rgba(185,28,28,0.1); color: var(--accent-red); }
+        .tag.gold { background: rgba(180,83,9,0.1); color: var(--accent3); }
 
-        /* ─── 강사 소개 슬라이드 ─── */
-        .speaker-layout {
-            display: grid;
-            grid-template-columns: 340px 1fr;
-            gap: 64px;
-            align-items: center;
-            width: 100%;
-            max-width: 1020px;
+        /* ─── 암세포 슬라이드 ─── */
+        .blackbox-row {
+            display: flex; align-items: center; justify-content: center;
+            gap: 0; margin: 24px 0;
         }
-        .speaker-photo-wrap {
-            position: relative;
+        .bbox-side {
+            background: #fff; border: 2px solid var(--border); border-radius: 20px;
+            padding: 28px 32px; text-align: center; box-shadow: var(--shadow); flex: 1;
         }
-        .speaker-photo-wrap img {
-            width: 100%;
-            aspect-ratio: 3/4;
-            object-fit: cover;
-            border-radius: 20px;
-            display: block;
-            background: var(--bg-card);
+        .bbox-side .bbox-icon { font-size: 3.8em; margin-bottom: 12px; display: block; }
+        .bbox-side .bbox-label { font-size: 1.25em; font-weight: 700; color: var(--text-dim); line-height: 1.5; }
+        .bbox-arrow { font-size: 2.8em; color: var(--border); padding: 0 20px; flex-shrink: 0; font-weight: 900; }
+        .bbox-center {
+            width: 120px; height: 120px; background: #111; border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid #333; flex-shrink: 0; box-shadow: 0 0 30px rgba(0,0,0,0.25);
         }
+        .bbox-center span { font-size: 3.5em; color: rgba(255,255,255,0.12); font-weight: 900; }
+
+        /* ─── 강사 소개 ─── */
+        .speaker-layout { display: grid; grid-template-columns: 260px 1fr; gap: 60px; align-items: center; width: 100%; max-width: 1080px; }
         .speaker-photo-placeholder {
-            width: 100%;
-            aspect-ratio: 3/4;
-            border-radius: 20px;
-            background: linear-gradient(135deg, rgba(124,110,247,0.15), rgba(78,201,192,0.10));
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 5em;
+            width: 100%; aspect-ratio: 3/4; border-radius: 20px;
+            background: linear-gradient(135deg, rgba(29,78,216,0.1), rgba(4,120,87,0.08));
+            border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 5em;
         }
-        .speaker-corner {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            width: 48px;
-            height: 48px;
-            border-top: 3px solid var(--accent2);
-            border-right: 3px solid var(--accent2);
-            border-radius: 0 8px 0 0;
-        }
-        .speaker-eyebrow {
-            font-size: 0.72em;
-            font-weight: 700;
-            letter-spacing: 0.25em;
-            color: var(--accent2);
-            margin-bottom: 14px;
-        }
-        .speaker-name {
-            font-size: 3em;
-            font-weight: 900;
-            line-height: 1.1;
-            letter-spacing: -0.01em;
-        }
-        .speaker-name-en {
-            font-size: 1em;
-            font-weight: 400;
-            letter-spacing: 0.18em;
-            color: var(--text-dim);
-            margin-top: 6px;
-            margin-bottom: 22px;
-        }
-        .speaker-divider {
-            width: 48px;
-            height: 2px;
-            background: linear-gradient(90deg, var(--accent1), var(--accent2));
-            border-radius: 2px;
-            margin-bottom: 26px;
-        }
-        .speaker-roles { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
-        .speaker-role-org {
-            font-size: 0.7em;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            color: var(--accent1);
-            margin-bottom: 3px;
-        }
-        .speaker-role-title {
-            font-size: 1.1em;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-        .speaker-role-title.past {
-            font-weight: 400;
-            color: var(--text-dim);
-        }
-        .speaker-edu {
-            border-top: 1px solid var(--border);
-            padding-top: 18px;
-        }
-        .speaker-edu-label {
-            font-size: 0.7em;
-            font-weight: 700;
-            letter-spacing: 0.18em;
-            color: var(--text-dim);
-            margin-bottom: 8px;
-        }
-        .speaker-edu-text {
-            font-size: 0.95em;
-            line-height: 1.75;
-            color: var(--text-dim);
-        }
-        .speaker-edu-text strong { color: var(--text-main); }
+        .speaker-photo-wrap img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 20px; display: block; border: 2px solid var(--border); }
+        .speaker-eyebrow { font-size: 0.9em; font-weight: 700; letter-spacing: 0.22em; color: var(--accent2); margin-bottom: 10px; }
+        .speaker-name { font-size: 3.2em; font-weight: 900; line-height: 1.1; }
+        .speaker-name-en { font-size: 1.1em; letter-spacing: 0.15em; color: var(--text-dim); margin-top: 6px; margin-bottom: 18px; }
+        .speaker-divider { width: 50px; height: 3px; background: linear-gradient(90deg, var(--accent1), var(--accent2)); border-radius: 2px; margin-bottom: 22px; }
+        .speaker-roles { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+        .speaker-role-org { font-size: 0.85em; font-weight: 700; letter-spacing: 0.08em; color: var(--accent1); margin-bottom: 3px; }
+        .speaker-role-title { font-size: 1.25em; font-weight: 700; }
+        .speaker-role-title.past { font-weight: 400; color: var(--text-dim); }
+        .speaker-edu { border-top: 2px solid var(--border); padding-top: 16px; }
+        .speaker-edu-label { font-size: 0.85em; font-weight: 700; letter-spacing: 0.15em; color: var(--text-dim); margin-bottom: 8px; }
+        .speaker-edu-text { font-size: 1.1em; line-height: 1.75; color: var(--text-dim); }
 
         /* ─── 네비게이션 ─── */
         .nav {
-            position: fixed;
-            bottom: 32px;
-            right: 36px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 100;
+            position: fixed; bottom: 28px; right: 40px;
+            display: flex; align-items: center; gap: 12px; z-index: 100;
         }
         .nav-btn {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.18);
-            color: white;
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.1em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.25s, transform 0.2s;
-            backdrop-filter: blur(8px);
+            background: #fff; border: 2px solid var(--border); color: var(--text-main);
+            width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+            font-size: 0.7em; display: flex; align-items: center; justify-content: center;
+            transition: all 0.22s; box-shadow: var(--shadow);
         }
-        .nav-btn:hover {
-            background: rgba(255,255,255,0.18);
-            transform: scale(1.08);
-        }
-        .nav-counter {
-            font-size: 0.85em;
-            color: var(--text-dim);
-            min-width: 54px;
-            text-align: center;
-            letter-spacing: 0.05em;
-        }
+        .nav-btn:hover { background: var(--accent1); color: #fff; border-color: var(--accent1); transform: scale(1.08); }
+        .nav-counter { font-size: 0.7em; font-weight: 700; color: var(--text-dim); min-width: 40px; text-align: center; }
 
-        /* ─── 진행 바 ─── */
-        .progress-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent1), var(--accent2));
-            transition: width 0.4s ease;
-            z-index: 200;
-        }
-
-        /* ─── 슬라이드 번호 ─── */
-        .slide-num {
-            position: fixed;
-            top: 28px;
-            right: 36px;
-            font-size: 0.8em;
-            color: var(--text-dim);
-            letter-spacing: 0.08em;
-            z-index: 100;
-        }
-
-        /* ─── 반응형 ─── */
         @media (max-width: 800px) {
-            .slide { padding: 30px 24px; }
-            h1 { font-size: 2.6em; }
-            h2 { font-size: 1.8em; }
-            .col2, .col3, .col4 { grid-template-columns: 1fr; }
+            .slide { padding: 30px 20px; }
+            h1 { font-size: 3em; } h2 { font-size: 2.2em; } p.lead { font-size: 1.25em; }
+            .col2, .col3 { grid-template-columns: 1fr; }
             .vs-wrap { grid-template-columns: 1fr; }
             .timeline { flex-direction: column; }
-            .tl-item { border-radius: 12px !important; border-right: 1px solid var(--border) !important; }
+            .tl-item { border-radius: 12px !important; border-right: 2px solid var(--border) !important; }
+            .speaker-layout { grid-template-columns: 1fr; }
+            .blackbox-row { flex-direction: column; }
         }
-
-        /* ─── 단어 게임 ─── */
-        .word-row {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin: 20px 0;
-        }
-        .word-chip {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 22px;
-            font-size: 1.2em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.25s;
-        }
-        .word-chip:hover { background: var(--bg-card-hover); transform: scale(1.06); }
-        .word-chip.selected { background: var(--accent2); border-color: var(--accent2); color: #0d0d1a; }
-        .word-chip.blank {
-            background: linear-gradient(90deg, var(--accent1), var(--accent2));
-            color: #0d0d1a;
-            font-weight: 900;
-            cursor: default;
-        }
-
-        /* ─── 콘텐츠 태그 배지 ─── */
-        .tag {
-            display: inline-block;
-            font-size: 0.72em;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            padding: 4px 12px;
-            border-radius: 100px;
-            margin-bottom: 10px;
-        }
-        .tag.purple { background: rgba(124,110,247,0.2); color: var(--accent1); }
-        .tag.red    { background: rgba(247,110,110,0.2); color: var(--accent-red); }
-        .tag.gold   { background: rgba(247,199,110,0.2); color: var(--accent3); }
-        .tag.teal   { background: rgba(78,201,192,0.2); color: var(--accent2); }
     </style>
 </head>
 <body>
 
 <div class="progress-bar" id="progress"></div>
-<div class="slide-num" id="slideNum">1 / 11</div>
+<div class="slide-num" id="slideNum">1 / 18</div>
 
 <!-- ══════════════════════════════════
-     슬라이드 1 — 타이틀
+     슬라이드 1 — 타이틀 (신기함으로 시작)
 ═══════════════════════════════════ -->
 <div class="slide active" id="s1">
     <div class="content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
-        <span class="title-kicker">AI 특강</span>
-        <h1>AI, 이제는<br>알고 써야 합니다</h1>
-        <p class="title-sub">
-            ChatGPT를 한 번쯤 써봤다면,<br>
-            이제 그 다음 단계 — <strong style="color:var(--accent3);">제대로 이해하기</strong>입니다.
+        <span class="slide-label">AI 특강 · 2026</span>
+        <h1 style="margin-bottom:20px;">
+            세상이 갑자기<br>
+            <span style="color:var(--accent1);">신기해졌습니다</span>
+        </h1>
+        <p class="lead" style="max-width:760px; text-align:center; margin-bottom:32px;">
+            말만 하면 글이 써지고, 물어보면 뭐든 대답하고,<br>
+            사진 한 장으로 번역까지 되는 세상.<br>
+            <strong style="color:var(--text-main);">오늘, 그 정체를 같이 알아봅니다.</strong>
         </p>
+        <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap; width:100%; max-width:900px;">
+            <div class="card" style="flex:1; min-width:220px; text-align:center;">
+                <span class="icon">💬</span>
+                <h3>ChatGPT</h3>
+                <p>"오늘 점심 뭐 먹지?" 물어봤더니 레시피까지 알려줬다</p>
+            </div>
+            <div class="card" style="flex:1; min-width:220px; text-align:center;">
+                <span class="icon">📸</span>
+                <h3>AI 카메라</h3>
+                <p>스마트폰이 알아서 얼굴 인식, 흔들림 보정까지</p>
+            </div>
+            <div class="card" style="flex:1; min-width:220px; text-align:center;">
+                <span class="icon">🗣️</span>
+                <h3>AI 번역</h3>
+                <p>영어로 말해도 실시간으로 한국어로 통역해 줍니다</p>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- ══════════════════════════════════
-     슬라이드 1b — 강사 소개
+     슬라이드 2 — 강사 소개
 ═══════════════════════════════════ -->
-<div class="slide" id="s1b">
+<div class="slide" id="s2">
     <div class="speaker-layout">
-        <!-- 사진 -->
         <div class="speaker-photo-wrap">
-            <div class="speaker-corner"></div>
             <img src="inae.jpg" alt="Speaker"
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div class="speaker-photo-placeholder" style="display:none;">👩‍💻</div>
         </div>
-        <!-- 정보 -->
         <div>
             <div class="speaker-eyebrow">SPEAKER</div>
             <div class="speaker-name">허인애</div>
@@ -568,7 +284,7 @@
                 <div class="speaker-edu-text">
                     <strong>University of Iowa</strong><br>
                     Ph.D. Biomedical Engineering<br>
-                    <span style="color:rgba(238,238,255,0.30); font-size:0.85em;">Computer Vision · Machine Learning Algorithm</span>
+                    <span style="color:#9ca3af; font-size:0.9em;">Computer Vision · Machine Learning Algorithm</span>
                 </div>
             </div>
         </div>
@@ -576,59 +292,138 @@
 </div>
 
 <!-- ══════════════════════════════════
-     슬라이드 2 — AI란?
+     슬라이드 3 — 암세포와 AI
 ═══════════════════════════════════ -->
-<div class="slide" id="s2">
+<div class="slide" id="s3">
     <div class="content">
-        <div class="slide-label">Chapter 1</div>
-        <h2>AI가 대체 <span class="accent">뭘까요?</span></h2>
-        <p class="lead">사람처럼 생각하고 판단하는 컴퓨터 프로그램입니다.<br>데이터 속에서 패턴을 찾아 스스로 문제를 해결하려 합니다.</p>
-        <div class="grid col3">
-            <div class="card blue">
-                <span class="icon">🧠</span>
-                <h3>생각하는 기계</h3>
-                <p>규칙을 직접 입력하지 않아도, 수많은 사례를 보고 스스로 규칙을 만들어냅니다.</p>
+        <div class="slide-label">AI가 실제로 하는 일</div>
+        <h2>AI가 <span class="blue">암세포</span>를 찾아냅니다</h2>
+        <p class="lead">수천 장의 세포 사진을 보고, 어떤 약에 반응하는지 AI가 골라냅니다.</p>
+
+        <div class="blackbox-row">
+            <div class="bbox-side">
+                <span class="bbox-icon">🔬</span>
+                <div class="bbox-label">입력<br><span style="font-size:0.85em; font-weight:400; color:#9ca3af;">세포 이미지 수천 장</span></div>
             </div>
-            <div class="card teal">
-                <span class="icon">📊</span>
-                <h3>패턴을 찾는 능력</h3>
-                <p>사진 속 고양이를 알아보고, 스팸 메일을 걸러내고, 취향에 맞는 영상을 추천합니다.</p>
+            <div class="bbox-arrow">→</div>
+            <div class="bbox-center"><span>?</span></div>
+            <div class="bbox-arrow">→</div>
+            <div class="bbox-side">
+                <span class="bbox-icon">💊</span>
+                <div class="bbox-label">출력<br><span style="font-size:0.85em; font-weight:400; color:#9ca3af;">이 약에 반응하는 세포</span></div>
             </div>
-            <div class="card gold">
-                <span class="icon">🎯</span>
-                <h3>문제 해결 시스템</h3>
-                <p>번역, 작문, 코딩, 그림 그리기까지 — 점점 더 많은 일을 해낼 수 있게 됐습니다.</p>
+        </div>
+
+        <div class="grid col2" style="margin-top:0;">
+            <div class="highlight-box green" style="margin-top:0;">
+                ✅ <strong>AI가 잘하는 것</strong><br>
+                수백만 장의 사진 속에서<br>
+                사람 눈으로는 놓칠 패턴을<br>
+                빠르고 정확하게 찾아냅니다.
+            </div>
+            <div class="highlight-box gold" style="margin-top:0;">
+                🤔 <strong>그런데 신기한 점</strong><br>
+                왜 이 세포가 반응하는지,<br>
+                AI도 설명을 못 합니다.<br>
+                입력도 알고 결과도 보이지만<br>
+                <strong>그 안은 블랙박스입니다.</strong>
             </div>
         </div>
     </div>
 </div>
 
 <!-- ══════════════════════════════════
-     슬라이드 3 — 사람 vs AI
+     슬라이드 4 — AI란?
 ═══════════════════════════════════ -->
-<div class="slide" id="s3">
+<div class="slide" id="s4">
     <div class="content">
         <div class="slide-label">Chapter 1</div>
-        <h2>사람 <span class="accent">🆚</span> AI</h2>
+        <h2>AI가 대체 <span class="blue">뭘까요?</span></h2>
+        <p class="lead">사람처럼 생각하고 판단하는 컴퓨터 프로그램입니다.<br>수많은 사례를 보고 스스로 규칙을 만들어냅니다.</p>
+        <div class="grid col3">
+            <div class="card blue">
+                <span class="icon">🧠</span>
+                <h3>생각하는 기계</h3>
+                <p>규칙을 입력하지 않아도, 수많은 예시를 보고 스스로 규칙을 익힙니다.</p>
+            </div>
+            <div class="card green">
+                <span class="icon">📊</span>
+                <h3>패턴을 찾는 능력</h3>
+                <p>사진 속 고양이를 알아보고, 스팸 메일을 걸러내고, 취향 영상을 추천합니다.</p>
+            </div>
+            <div class="card orange">
+                <span class="icon">🎯</span>
+                <h3>문제 해결 시스템</h3>
+                <p>번역, 작문, 코딩, 그림 그리기까지 점점 더 많은 일을 해냅니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 5 — 우리 주변 AI
+═══════════════════════════════════ -->
+<div class="slide" id="s5">
+    <div class="content">
+        <div class="slide-label">Chapter 1</div>
+        <h2>우리 주변 <span class="blue">AI 찾아보기</span> 🔍</h2>
+        <p class="lead" style="margin-bottom:16px;">이미 하루에도 수십 번, AI를 만나고 있습니다.</p>
+        <div class="grid col3">
+            <div class="card">
+                <span class="icon">📱</span>
+                <h3>스마트폰</h3>
+                <p>Siri, 구글 어시스턴트<br>카메라 자동 보정·얼굴 인식</p>
+            </div>
+            <div class="card">
+                <span class="icon">📺</span>
+                <h3>넷플릭스</h3>
+                <p>내 취향에 맞는 영화·드라마를<br>골라서 추천해 줍니다</p>
+            </div>
+            <div class="card">
+                <span class="icon">🚗</span>
+                <h3>내비게이션</h3>
+                <p>실시간 교통 상황을 분석해<br>가장 빠른 길을 안내합니다</p>
+            </div>
+            <div class="card">
+                <span class="icon">🏥</span>
+                <h3>병원·의료</h3>
+                <p>X레이·CT 사진 분석<br>질병 조기 발견 보조</p>
+            </div>
+            <div class="card">
+                <span class="icon">📧</span>
+                <h3>이메일</h3>
+                <p>스팸 메일 자동 필터링<br>중요한 메일 우선 분류</p>
+            </div>
+            <div class="card">
+                <span class="icon">🛒</span>
+                <h3>쿠팡·네이버</h3>
+                <p>최근 본 상품 기반으로<br>관련 상품을 자동 추천</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 4c — 사람 vs AI
+═══════════════════════════════════ -->
+<div class="slide" id="s4c">
+    <div class="content">
+        <div class="slide-label">Chapter 1</div>
+        <h2>사람 <span class="orange">🆚</span> AI</h2>
         <div class="vs-wrap">
-            <div class="card" style="border-top:3px solid #f76e6e;">
-                <span class="icon">👨‍💼</span>
+            <div class="card" style="border-top:5px solid var(--accent-red);">
+                <span class="icon">👨‍👩‍👧</span>
                 <h3 style="color:var(--accent-red);">사람이 잘하는 것</h3>
                 <ul>
                     <li>창의적 사고와 직관</li>
                     <li>감정 이해와 공감</li>
                     <li>예상 밖 상황 대처</li>
                     <li>가치 판단·도덕적 결정</li>
-                </ul>
-                <br>
-                <h3 style="color:var(--text-dim); font-size:0.95em;">사람이 힘든 것</h3>
-                <ul>
-                    <li>수천만 개 데이터 분석</li>
-                    <li>24시간 쉬지 않는 반복 작업</li>
+                    <li>평생 쌓은 경험과 지혜</li>
                 </ul>
             </div>
             <div class="vs-badge">VS</div>
-            <div class="card" style="border-top:3px solid var(--accent2);">
+            <div class="card" style="border-top:5px solid var(--accent2);">
                 <span class="icon">🤖</span>
                 <h3 style="color:var(--accent2);">AI가 잘하는 것</h3>
                 <ul>
@@ -636,29 +431,25 @@
                     <li>빠른 계산과 반복 처리</li>
                     <li>24시간 안정적 작동</li>
                     <li>여러 언어 동시 번역</li>
-                </ul>
-                <br>
-                <h3 style="color:var(--text-dim); font-size:0.95em;">AI가 힘든 것</h3>
-                <ul>
-                    <li>진짜 감정과 공감</li>
-                    <li>상식적 판단·도덕성</li>
+                    <li>수백만 장 사진 분류</li>
                 </ul>
             </div>
         </div>
-        <div class="highlight-box" style="text-align:center; margin-top:20px;">
-            🤝 <strong>서로 잘하는 것이 다릅니다. 협력하면 최고가 됩니다.</strong>
+        <div class="highlight-box" style="text-align:center;">
+            🤝 <strong>서로 잘하는 것이 다릅니다.</strong><br>
+            AI는 도구입니다 — 잘 쓰는 사람이 더 편리하게 살 수 있습니다.
         </div>
     </div>
 </div>
 
 <!-- ══════════════════════════════════
-     슬라이드 4 — AI 역사
+     슬라이드 4b — AI 역사
 ═══════════════════════════════════ -->
-<div class="slide" id="s4">
+<div class="slide" id="s4b">
     <div class="content">
         <div class="slide-label">Chapter 1</div>
-        <h2>AI의 <span class="accent">간단한 역사</span></h2>
-        <p class="lead" style="margin-bottom:0;">70년 만에 공상과학 속 이야기가 현실이 됐습니다.</p>
+        <h2>70년 만에 <span class="blue">공상과학이 현실</span>이 됐습니다</h2>
+        <p class="lead" style="margin-bottom:0;">우리 삶이 바뀐 속도를 한눈에 봅니다.</p>
         <div class="timeline">
             <div class="tl-item">
                 <div class="tl-year">1950년대</div>
@@ -685,266 +476,306 @@
                 <div class="tl-desc">생성형 AI가 모든 사람의 일상으로</div>
             </div>
         </div>
-        <div class="highlight-box gold" style="margin-top:20px; text-align:center;">
-            🚀 <strong>2024~2025년:</strong> AI가 스마트폰처럼 — 모르면 불편한 세상이 됩니다.
+        <div class="highlight-box gold" style="text-align:center;">
+            🚀 <strong>지금은:</strong> AI가 스마트폰처럼 — 알고 쓰면 편하고, 모르면 당할 수 있는 세상입니다.
         </div>
     </div>
 </div>
 
 <!-- ══════════════════════════════════
-     슬라이드 5 — 우리 주변 AI
-═══════════════════════════════════ -->
-<div class="slide" id="s5">
-    <div class="content">
-        <div class="slide-label">Chapter 1</div>
-        <h2>우리 주변 <span class="accent">AI 찾아보기</span> 🔍</h2>
-        <p class="lead" style="margin-bottom:16px;">이미 하루에도 수십 번, AI를 만나고 있습니다.</p>
-        <div class="grid col3">
-            <div class="card">
-                <span class="icon">📱</span>
-                <h3>스마트폰</h3>
-                <p>Siri, 구글 어시스턴트<br>카메라 자동 보정·얼굴 인식</p>
-            </div>
-            <div class="card">
-                <span class="icon">📺</span>
-                <h3>넷플릭스</h3>
-                <p>내 취향에 맞는 영화·드라마를<br>골라서 추천해 줍니다</p>
-            </div>
-            <div class="card">
-                <span class="icon">🛒</span>
-                <h3>쿠팡·네이버</h3>
-                <p>최근 본 상품 기반으로<br>관련 상품을 자동 추천</p>
-            </div>
-            <div class="card">
-                <span class="icon">🚗</span>
-                <h3>내비게이션</h3>
-                <p>실시간 교통 상황을 분석해<br>가장 빠른 길을 안내</p>
-            </div>
-            <div class="card">
-                <span class="icon">📧</span>
-                <h3>이메일</h3>
-                <p>스팸 메일 자동 필터링<br>중요한 메일 우선 분류</p>
-            </div>
-            <div class="card">
-                <span class="icon">🏥</span>
-                <h3>병원·의료</h3>
-                <p>X레이·CT 사진 분석<br>질병 조기 발견 보조</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ══════════════════════════════════
-     슬라이드 6 — LLM이란?
+     슬라이드 6 — ChatGPT 작동 원리
 ═══════════════════════════════════ -->
 <div class="slide" id="s6">
     <div class="content">
         <div class="slide-label">Chapter 2</div>
-        <h2>ChatGPT는 어떻게 <span class="accent">대답할까요?</span></h2>
-        <p class="lead">LLM(거대 언어 모델) — "다음에 올 단어를 예측하는 기계"입니다.</p>
+        <h2>ChatGPT는 어떻게 <span class="blue">대답할까요?</span></h2>
+        <p class="lead">"다음에 올 단어를 예측하는 기계"입니다.</p>
 
         <div class="word-row">
             <div class="word-chip">오늘</div>
             <div class="word-chip">날씨가</div>
             <div class="word-chip blank">?</div>
         </div>
-        <p style="text-align:center; color:var(--text-dim); margin-bottom:14px;">👆 다음에 어떤 단어가 자연스러울까요? 골라보세요</p>
+        <p style="text-align:center; color:var(--text-dim); font-size:1.3em; margin-bottom:14px;">👆 다음에 어떤 단어가 자연스러울까요? 골라보세요</p>
         <div class="word-row">
             <div class="word-chip" onclick="pickWord(this)">좋네요</div>
             <div class="word-chip" onclick="pickWord(this)">나빠요</div>
             <div class="word-chip" onclick="pickWord(this)">춥네요</div>
             <div class="word-chip" onclick="pickWord(this)">더워요</div>
         </div>
-
-        <div class="highlight-box" style="margin-top:22px;">
+        <div class="highlight-box">
             <strong>💡 ChatGPT도 똑같은 방식입니다.</strong><br>
             수백억 개의 문장을 읽고 "이 다음엔 어떤 단어가 오는지" 패턴을 익혔습니다.
-            한 단어씩 이어 붙이면서 문장을 완성합니다.
-            <br><br>
-            <span style="color:var(--accent3);">📌 그래서 AI는 "진짜로 이해"하는 게 아니라 "패턴을 따라 이어 붙이는" 것입니다.</span>
+            한 단어씩 이어 붙이면서 문장을 완성합니다.<br><br>
+            <span style="color:var(--accent3); font-weight:700;">📌 그래서 AI는 "진짜로 이해"하는 게 아니라 "패턴을 따라 이어 붙이는" 것입니다.</span>
         </div>
     </div>
 </div>
 
-
 <!-- ══════════════════════════════════
-     슬라이드 8 — 환각 현상
+     슬라이드 7a — 환각 현상 (채팅 예시)
 ═══════════════════════════════════ -->
-<div class="slide" id="s8">
+<div class="slide" id="s7">
     <div class="content">
         <div class="slide-label">Chapter 3 · 주의하세요</div>
-        <h2>AI가 <span class="accent" style="color:var(--accent-red);">자신 있게 거짓말</span>을 합니다</h2>
+        <h2>AI가 <span class="red">자신 있게 거짓말</span>을 합니다</h2>
         <p class="lead">이것을 <strong>환각 현상(Hallucination)</strong>이라고 부릅니다.</p>
 
-        <div class="grid col2" style="margin-top:4px;">
-            <div>
-                <p style="font-size:0.85em; color:var(--text-dim); margin-bottom:10px; text-align:left;">💬 실제로 이런 일이 일어납니다</p>
-                <div class="chat-wrap">
-                    <div class="bubble user">
-                        <div class="bubble-label">사용자</div>
-                        서울 강남에 있는 정형외과 좀 알려줘
-                    </div>
-                    <div class="bubble ai wrong">
-                        <div class="bubble-label">AI 🤖</div>
-                        강남구 역삼동에 위치한 <strong>한빛정형외과</strong>를 추천드립니다.<br>
-                        전화번호 02-555-XXXX, 평일 오전 9시~오후 6시 운영합니다. ✅
-                    </div>
-                    <div class="bubble ai wrong" style="border-color:rgba(247,110,110,0.6); background:rgba(247,110,110,0.12);">
-                        <div class="bubble-label" style="color:var(--accent-red);">⚠ 실제로는</div>
-                        존재하지 않는 병원일 수 있습니다.<br>
-                        번호도, 주소도, 모두 지어낸 것일 수 있습니다.
-                    </div>
-                </div>
+        <p style="font-size:1.1em; color:var(--text-dim); margin-bottom:14px;">💬 실제로 이런 일이 일어납니다</p>
+        <div class="chat-wrap" style="max-width:700px;">
+            <div class="bubble user">
+                <div class="bubble-label">사용자</div>
+                서울 강남에 있는 정형외과 좀 알려줘
             </div>
+            <div class="bubble ai">
+                <div class="bubble-label">AI 🤖</div>
+                강남구 역삼동 <strong>한빛정형외과</strong>를 추천드립니다.<br>
+                전화번호 02-555-XXXX, 평일 오전 9시~오후 6시 ✅
+            </div>
+            <div class="bubble ai wrong">
+                <div class="bubble-label" style="color:var(--accent-red);">⚠ 실제로는</div>
+                존재하지 않는 병원일 수 있습니다.<br>
+                번호도, 주소도, 모두 지어낸 것일 수 있습니다.
+            </div>
+        </div>
+    </div>
+</div>
 
-            <div class="step-list">
-                <p style="font-size:0.85em; color:var(--text-dim); margin-bottom:2px;">🤔 왜 이런 일이 생길까요?</p>
-                <div class="step-item">
-                    <div class="step-num" style="background:var(--accent1);">1</div>
-                    <p>AI는 <strong>"다음 단어를 예측"</strong>하도록 훈련됐습니다. 사실인지 확인하는 과정이 없습니다.</p>
-                </div>
-                <div class="step-item">
-                    <div class="step-num" style="background:var(--accent1);">2</div>
-                    <p>틀려도 <strong>자신 있는 말투</strong>로 대답합니다. 망설이거나 "모른다"고 하지 않습니다.</p>
-                </div>
-                <div class="step-item">
-                    <div class="step-num" style="background:var(--accent-red);">!</div>
-                    <p>병원 이름, 약 이름, 법 조항, 사람 이름 — <strong>중요한 정보일수록 반드시 직접 확인</strong>하세요.</p>
-                </div>
+<!-- ══════════════════════════════════
+     슬라이드 7b — 환각 현상 (이유 설명)
+═══════════════════════════════════ -->
+<div class="slide" id="s7b">
+    <div class="content">
+        <div class="slide-label">Chapter 3 · 주의하세요</div>
+        <h2>왜 이런 일이 <span class="red">생길까요?</span></h2>
+
+        <div class="step-list" style="margin-top:8px;">
+            <div class="step-item">
+                <div class="step-num">1</div>
+                <p>AI는 <strong>"다음 단어를 예측"</strong>하도록 훈련됐습니다. 사실인지 확인하는 과정이 없습니다.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-num">2</div>
+                <p>틀려도 <strong>자신 있는 말투</strong>로 대답합니다. 망설이거나 "모른다"고 하지 않습니다.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-num red">!</div>
+                <p>병원 이름, 약 이름, 법 조항 — <strong>중요한 정보일수록 반드시 직접 확인</strong>하세요.</p>
             </div>
         </div>
 
-        <div class="highlight-box warning" style="margin-top:18px; text-align:center;">
-            ⚠️ <strong>AI의 말을 그대로 믿지 마세요.</strong>
+        <div class="highlight-box warning" style="margin-top:28px; text-align:center;">
+            ⚠️ <strong>AI의 말을 그대로 믿지 마세요.</strong><br>
             참고는 하되, 중요한 내용은 꼭 검색이나 전화로 다시 확인하는 습관이 필요합니다.
         </div>
     </div>
 </div>
 
 <!-- ══════════════════════════════════
-     슬라이드 9 — 환각: 더 많은 사례
+     슬라이드 8a — 특히 조심할 상황 (정보)
 ═══════════════════════════════════ -->
-<div class="slide" id="s9">
+<div class="slide" id="s8">
     <div class="content">
         <div class="slide-label">Chapter 3 · 주의하세요</div>
-        <h2>이런 상황에서 <span class="accent" style="color:var(--accent-red);">특히 조심하세요</span></h2>
-        <div class="grid col3" style="margin-top:8px;">
+        <h2>이런 상황에서 <span class="red">특히 조심하세요</span></h2>
+        <div class="grid col3">
             <div class="card red">
                 <span class="icon">💊</span>
                 <h3>의료·약 정보</h3>
-                <p>AI가 알려주는 약 복용량, 부작용, 진단 결과는 <strong>절대</strong> 그대로 따르지 마세요. 반드시 의사·약사에게 확인하세요.</p>
+                <p>AI가 알려주는 약 복용량, 부작용은 <strong>절대</strong> 그대로 따르지 마세요. 반드시 의사·약사에게 확인하세요.</p>
             </div>
             <div class="card red">
                 <span class="icon">⚖️</span>
                 <h3>법률·제도</h3>
-                <p>"이런 경우엔 괜찮습니다"라고 자신 있게 말해도, 없는 법 조항을 지어낼 수 있습니다. 법률 전문가에게 확인하세요.</p>
+                <p>자신 있게 말해도, 없는 법 조항을 지어낼 수 있습니다. 법률 전문가에게 확인하세요.</p>
             </div>
             <div class="card red">
                 <span class="icon">🏦</span>
                 <h3>금융·투자</h3>
-                <p>AI가 알려주는 금리, 정책 혜택, 투자 정보는 최신 정보가 아닐 수 있고, 틀릴 수도 있습니다.</p>
-            </div>
-            <div class="card" style="border-top:3px solid var(--accent3);">
-                <span class="icon">📰</span>
-                <h3>뉴스·사실 확인</h3>
-                <p>최근 뉴스나 실시간 사건은 AI가 모릅니다. 학습 데이터에는 시간 제한이 있습니다.</p>
-            </div>
-            <div class="card" style="border-top:3px solid var(--accent3);">
-                <span class="icon">👤</span>
-                <h3>사람 정보</h3>
-                <p>특정 인물의 연락처, 경력, 발언을 지어낼 수 있습니다. 실존 인물 정보는 직접 확인이 필요합니다.</p>
-            </div>
-            <div class="card" style="border-top:3px solid var(--accent3);">
-                <span class="icon">🗺️</span>
-                <h3>장소·업체 정보</h3>
-                <p>존재하지 않는 가게, 잘못된 주소, 폐업한 업체를 영업 중인 것처럼 알려줄 수 있습니다.</p>
+                <p>AI가 알려주는 금리, 정책 혜택은 최신 정보가 아닐 수 있고, 틀릴 수도 있습니다.</p>
             </div>
         </div>
     </div>
 </div>
 
 <!-- ══════════════════════════════════
-     슬라이드 10 — AI 윤리·사회 이슈
+     슬라이드 8b — 특히 조심할 상황 (사기·개인정보)
 ═══════════════════════════════════ -->
-<div class="slide" id="s10">
+<div class="slide" id="s8b">
     <div class="content">
-        <div class="slide-label">Chapter 4 · 알고 계셔야 합니다</div>
-        <h2>AI를 둘러싼 <span class="accent">걱정들</span></h2>
-
-        <div class="grid col2">
-            <div class="card red">
-                <span class="tag red">가장 위험</span>
+        <div class="slide-label">Chapter 3 · 주의하세요</div>
+        <h2>이것도 <span class="red">반드시 조심하세요</span></h2>
+        <div class="grid col3">
+            <div class="card orange">
                 <span class="icon">📞</span>
                 <h3>딥페이크 보이스피싱</h3>
-                <p>
-                    AI로 가족의 목소리를 그대로 복제할 수 있습니다.<br>
-                    <strong>"엄마, 나 사고 났어. 돈 좀 보내줘"</strong><br>
-                    → 실제로 일어나고 있는 범죄입니다.<br><br>
-                    📌 전화로 돈 요청이 오면, 반드시 다시 전화해서 확인하세요.
-                </p>
+                <p>AI로 가족 목소리를 복제할 수 있습니다. <strong>"엄마, 나 사고 났어"</strong> — 전화로 돈 요청 오면 반드시 다시 확인하세요.</p>
             </div>
-            <div class="card red">
-                <span class="tag red">주의</span>
+            <div class="card orange">
                 <span class="icon">🖼️</span>
                 <h3>가짜 사진·영상</h3>
-                <p>
-                    실제처럼 보이는 가짜 사진과 영상을 만들 수 있습니다.<br>
-                    유명인이 말하지 않은 말을 말한 것처럼, 없던 사건을 있던 것처럼 만들어냅니다.<br><br>
-                    📌 충격적인 사진·영상일수록 공유 전에 한 번 더 의심하세요.
-                </p>
+                <p>실제처럼 보이는 가짜 영상을 만들 수 있습니다. 충격적인 사진일수록 공유 전에 한 번 더 의심하세요.</p>
             </div>
-            <div class="card" style="border-top:3px solid var(--accent3);">
-                <span class="tag gold">생각해볼 것</span>
-                <span class="icon">💼</span>
-                <h3>일자리 변화</h3>
-                <p>
-                    단순 반복 업무는 AI가 빠르게 대체하고 있습니다.<br>
-                    하지만 AI가 못하는 것 — 사람과의 따뜻한 소통, 경험과 직관, 창의성 — 은 여전히 사람의 몫입니다.<br><br>
-                    📌 AI를 두려워하기보다, 도구로 활용하는 법을 배우는 게 중요합니다.
-                </p>
-            </div>
-            <div class="card" style="border-top:3px solid var(--accent3);">
-                <span class="tag gold">알아두기</span>
+            <div class="card orange">
                 <span class="icon">🔒</span>
                 <h3>개인정보 조심</h3>
-                <p>
-                    ChatGPT 등에 주민번호, 계좌번호, 가족 정보를 입력하지 마세요.<br>
-                    입력한 내용이 학습 데이터로 사용될 수 있습니다.<br><br>
-                    📌 민감한 내용은 AI에게 물어보지 않는 것이 안전합니다.
-                </p>
+                <p>ChatGPT에 주민번호, 계좌번호를 입력하지 마세요. 입력한 내용이 학습 데이터로 사용될 수 있습니다.</p>
             </div>
         </div>
     </div>
 </div>
 
 <!-- ══════════════════════════════════
-     슬라이드 11 — 마무리
+     슬라이드 10b — 브릿지 (안2)
+═══════════════════════════════════ -->
+<div class="slide" id="s10b">
+    <div class="content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+        <p class="lead" style="color:var(--text-dim); margin-bottom:36px;">
+            AI를 이렇게 열심히 설명했는데 —
+        </p>
+        <h2 style="font-size:2.8em; margin-bottom:36px; line-height:1.5;">
+            솔직히 말씀드리면,<br>
+            오늘 제가 가장 드리고 싶었던 말은<br>
+            <span class="red">AI 얘기가 아닙니다.</span>
+        </h2>
+        <p class="lead" style="color:var(--text-dim);">
+            제가 연구하면서 가장 신기했던 순간,<br>
+            기억하시나요?
+        </p>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 11a — 암세포 다시 소환
 ═══════════════════════════════════ -->
 <div class="slide" id="s11">
-    <div class="content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
-        <div class="slide-label">마치며</div>
-        <h2>AI와 함께 살아가는 <span class="accent">현명한 방법</span></h2>
-        <div class="grid col3" style="margin-top:8px; text-align:left; width:100%;">
-            <div class="card teal">
-                <span class="icon">✅</span>
-                <h3>활용하세요</h3>
-                <p>번역, 작문, 정보 검색의 출발점으로 AI는 매우 편리한 도구입니다.</p>
+    <div class="content">
+        <div class="slide-label">다시, 암세포 이야기</div>
+        <h2 style="margin-bottom:32px;">
+            같은 약물인데<br>
+            <span class="blue">세포마다 반응이 달랐습니다</span>
+        </h2>
+        <div class="grid col2" style="margin-top:0;">
+            <div class="highlight-box green" style="margin-top:0; font-size:1.3em;">
+                🔬 <strong>예상했던 것</strong><br><br>
+                같은 종류의 세포니까<br>
+                같은 약물에 같은 반응을 보일 거라<br>
+                생각했습니다.
             </div>
-            <div class="card gold">
-                <span class="icon">🔍</span>
-                <h3>확인하세요</h3>
-                <p>중요한 정보는 반드시 공식 기관이나 전문가를 통해 다시 확인하세요.</p>
-            </div>
-            <div class="card red">
-                <span class="icon">🛡️</span>
-                <h3>조심하세요</h3>
-                <p>개인정보 입력 금지, 딥페이크 보이스피싱 주의, 가짜 뉴스 의심하기.</p>
+            <div class="highlight-box gold" style="margin-top:0; font-size:1.3em;">
+                🤔 <strong>실제로 일어난 것</strong><br><br>
+                똑같아 보이는 세포인데<br>
+                반응이 세포마다 전부 달랐습니다.<br>
+                겉으로는 구분이 안 됩니다.<br>
             </div>
         </div>
-        <div class="highlight-box" style="margin-top:24px; font-size:1.1em; text-align:center; max-width:700px;">
-            🌟 <strong>AI는 도구입니다.</strong><br>
-            망치가 편리하지만 잘못 쓰면 위험하듯이,<br>
-            AI도 제대로 알고 쓸 때 비로소 도움이 됩니다.
+        <div class="highlight-box" style="margin-top:24px; font-size:1.35em; text-align:center;">
+            그 순간 저는 생각했습니다.<br>
+            <strong style="color:var(--accent1);">사람도 마찬가지 아닐까?</strong><br>
+            같은 시대, 비슷한 환경에 살아도 —<br>
+            각자의 마음이 반응하는 것은 완전히 다릅니다.
+        </div>
+    </div>
+</div>
+
+
+
+<!-- ══════════════════════════════════
+     슬라이드 12 — 당신의 마음이 반응하는 것
+═══════════════════════════════════ -->
+<div class="slide" id="s12">
+    <div class="content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+        <div class="slide-label">질문 하나</div>
+        <h2 style="margin-bottom:28px;">
+            당신의 <span class="blue">마음이 반응하는 것</span>은<br>
+            무엇입니까?
+        </h2>
+        <p class="lead" style="margin-bottom:32px; max-width:700px;">
+            남들이 다 좋다는 것 말고,<br>
+            이유도 모르게 설레는 것 —<br>
+            하고 나서 살아있다는 느낌이 드는 것
+        </p>
+        <div style="display:flex; gap:18px; flex-wrap:wrap; justify-content:center; width:100%; max-width:900px;">
+            <div class="card" style="flex:1; min-width:200px; text-align:center; border-top:5px solid #e5e0d8;">
+                <span class="icon" style="opacity:0.35;">📈</span>
+                <h3 style="color:var(--text-dim); font-size:1.2em;">주식 수익률</h3>
+                <p style="color:#9ca3af;">AI가 더 잘합니다</p>
+            </div>
+            <div class="card" style="flex:1; min-width:200px; text-align:center; border-top:5px solid #e5e0d8;">
+                <span class="icon" style="opacity:0.35;">📰</span>
+                <h3 style="color:var(--text-dim); font-size:1.2em;">뉴스 요약</h3>
+                <p style="color:#9ca3af;">AI가 더 잘합니다</p>
+            </div>
+            <div class="card" style="flex:1; min-width:200px; text-align:center; border-top:5px solid var(--accent2);">
+                <span class="icon">❤️</span>
+                <h3 style="color:var(--accent2); font-size:1.2em;">손자녀의 웃음</h3>
+                <p>사람만 느낄 수 있습니다</p>
+            </div>
+            <div class="card" style="flex:1; min-width:200px; text-align:center; border-top:5px solid var(--accent2);">
+                <span class="icon">🌿</span>
+                <h3 style="color:var(--accent2); font-size:1.2em;">봄의 기운</h3>
+                <p>사람만 느낄 수 있습니다</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 13 — 마음을 가꾸세요
+═══════════════════════════════════ -->
+<div class="slide" id="s13">
+    <div class="content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+        <div class="slide-label">마음도 근육입니다</div>
+        <h2 style="margin-bottom:24px;">
+            마음에 마지막으로<br>
+            <span class="blue">뭔가를 준 게</span> 언제예요?
+        </h2>
+        <p class="lead" style="max-width:720px; margin-bottom:32px;">
+            세포도 아무 자극이 없으면 반응 자체가 없습니다.<br>
+            마음도 쓰지 않으면 — 반응이 사라집니다.
+        </p>
+        <div class="grid col3" style="width:100%;">
+            <div class="card green">
+                <span class="icon">🎨</span>
+                <h3>오래 미뤄둔 것</h3>
+                <p>그림, 악기, 글쓰기 —<br>언젠가 하려 했던 것들</p>
+            </div>
+            <div class="card blue">
+                <span class="icon">🚶</span>
+                <h3>몸으로 느끼는 것</h3>
+                <p>산책, 여행, 텃밭 —<br>AI가 절대 대신할 수 없는 것</p>
+            </div>
+            <div class="card orange">
+                <span class="icon">💬</span>
+                <h3>사람과 나누는 것</h3>
+                <p>오랜 친구와의 대화,<br>가족과 함께하는 시간</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 14 — 마무리
+═══════════════════════════════════ -->
+<div class="slide" id="s14">
+    <div class="content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+            <h2 style="margin-bottom:32px; line-height:1.6;"><span class="blue">그 방법을,</span><br>다음 시간에 같이 찾아봅니다.</h2> 
+        <p class="lead" style="max-width:720px; margin-bottom:40px;">
+            마음을 가꾼다는 것이 무엇인지<br>
+            어떻게 트레이닝하는 건지 —<br>
+            <strong style="color:var(--text-main);">이야기는 계속됩니다.</strong>
+        </p>
+        <div style="
+            border: 2px solid var(--border);
+            border-top: 5px solid var(--accent1);
+            border-radius: 20px;
+            background: #fff;
+            padding: 36px 56px;
+            box-shadow: var(--shadow);
+        ">
+            <div style="font-size:0.9em; font-weight:700; letter-spacing:0.2em; color:var(--accent1); margin-bottom:16px;">NEXT SESSION</div>
+            <div style="font-size:2em; font-weight:900; color:var(--text-main); margin-bottom:10px;">4월 2일 · 2 PM</div>
+            <div style="font-size:1.3em; color:var(--text-dim);">마음의 색깔을 칠해보는 시간</div>
         </div>
     </div>
 </div>
@@ -952,7 +783,7 @@
 <!-- ─── 네비게이션 ─── -->
 <div class="nav">
     <button class="nav-btn" onclick="go(-1)">◀</button>
-    <span class="nav-counter" id="counter">1 / 11</span>
+    <span class="nav-counter" id="counter">1 / 18</span>
     <button class="nav-btn" onclick="go(1)">▶</button>
 </div>
 
@@ -990,7 +821,6 @@
         setTimeout(() => el.classList.remove('selected'), 2000);
     }
 
-    // 초기 진행 바
     document.getElementById('progress').style.width = `${(1 / total) * 100}%`;
 </script>
 </body>
