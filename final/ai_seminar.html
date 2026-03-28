@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 이야기 — 오늘 바로 써봅니다</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+
+        :root {
+            --bg: #f4f1eb;
+            --bg-card: #ffffff;
+            --accent1: #2563eb;
+            --accent2: #059669;
+            --accent3: #d97706;
+            --accent-red: #dc2626;
+            --accent-warm: #ea580c;
+            --text-main: #1a1a2e;
+            --text-dim: #4b5563;
+            --border: #ddd8cc;
+            --shadow: 0 4px 24px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { font-size: 22px; }
+
+        body {
+            font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* 스크롤 가능한 슬라이드 래퍼 */
+        .slide-viewport {
+            position: fixed;
+            inset: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+        .slide-viewport::-webkit-scrollbar { width: 6px; }
+        .slide-viewport::-webkit-scrollbar-track { background: transparent; }
+        .slide-viewport::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        /* 배경 따뜻한 텍스처 */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 70% 60% at 10% 10%, rgba(37,99,235,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 90% 90%, rgba(5,150,105,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 40% at 50% 0%, rgba(217,119,6,0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            transition: width 0.4s ease;
+            z-index: 200;
+        }
+
+        .slide {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 72px 80px 80px;
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content {
+            max-width: 1060px;
+            width: 100%;
+        }
+
+        /* 슬라이드 라벨 */
+        .slide-label {
+            font-size: 0.72em;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            color: var(--accent1);
+            margin-bottom: 16px;
+            display: inline-block;
+            background: rgba(37,99,235,0.08);
+            padding: 6px 18px;
+            border-radius: 100px;
+        }
+
+        h1 {
+            font-size: 3.4em;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 22px;
+            color: var(--text-main);
+        }
+        h1 .blue { color: var(--accent1); }
+
+        h2 {
+            font-size: 2.3em;
+            font-weight: 900;
+            line-height: 1.3;
+            margin-bottom: 28px;
+            color: var(--text-main);
+        }
+        h2 .blue  { color: var(--accent1); }
+        h2 .green { color: var(--accent2); }
+        h2 .orange{ color: var(--accent3); }
+        h2 .red   { color: var(--accent-red); }
+
+        h3 {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        p.lead {
+            font-size: 1.25em;
+            line-height: 1.9;
+            color: var(--text-dim);
+            margin-bottom: 18px;
+        }
+
+        /* 그리드 */
+        .grid { display: grid; gap: 18px; margin-top: 10px; }
+        .col2 { grid-template-columns: 1fr 1fr; }
+        .col3 { grid-template-columns: 1fr 1fr 1fr; }
+
+        /* 카드 */
+        .card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 26px 24px;
+            box-shadow: var(--shadow);
+            transition: transform 0.22s;
+        }
+        .card:hover { transform: translateY(-3px); }
+        .card .icon { font-size: 2.4em; margin-bottom: 12px; display: block; }
+        .card h3 { font-size: 1.1em; margin-bottom: 8px; }
+        .card p, .card li {
+            font-size: 1em;
+            line-height: 1.8;
+            color: var(--text-dim);
+        }
+        .card ul { padding-left: 18px; }
+        .card.blue   { border-top: 5px solid var(--accent1); }
+        .card.green  { border-top: 5px solid var(--accent2); }
+        .card.orange { border-top: 5px solid var(--accent3); }
+        .card.red    { border-top: 5px solid var(--accent-red); }
+        .card.warm   { border-top: 5px solid var(--accent-warm); }
+
+        /* 강조 박스 */
+        .highlight-box {
+            background: rgba(37,99,235,0.06);
+            border: 2px solid rgba(37,99,235,0.18);
+            border-radius: 18px;
+            padding: 24px 30px;
+            margin-top: 20px;
+            font-size: 1.1em;
+            line-height: 1.9;
+            color: var(--text-main);
+        }
+        .highlight-box.warning {
+            background: rgba(220,38,38,0.05);
+            border-color: rgba(220,38,38,0.22);
+        }
+        .highlight-box.gold {
+            background: rgba(217,119,6,0.06);
+            border-color: rgba(217,119,6,0.22);
+        }
+        .highlight-box.green {
+            background: rgba(5,150,105,0.06);
+            border-color: rgba(5,150,105,0.22);
+        }
+
+        /* 실습 박스 */
+        .practice-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #ecfdf5 100%);
+            border: 3px solid var(--accent1);
+            border-radius: 20px;
+            padding: 28px 32px;
+            margin-top: 18px;
+        }
+        .practice-box h3 {
+            font-size: 1.3em;
+            color: var(--accent1);
+            margin-bottom: 16px;
+        }
+        .practice-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+        }
+        .practice-item:last-child { margin-bottom: 0; }
+        .practice-num {
+            min-width: 42px;
+            height: 42px;
+            background: var(--accent1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.1em;
+            color: white;
+            flex-shrink: 0;
+        }
+        .practice-item p {
+            font-size: 1.05em;
+            line-height: 1.7;
+            color: var(--text-dim);
+        }
+        .practice-item p strong { color: var(--text-main); font-size: 1.05em; }
+
+        /* 대화 버블 */
+        .chat-wrap { display: flex; flex-direction: column; gap: 14px; margin-top: 10px; }
+        .bubble {
+            max-width: 82%;
+            padding: 16px 22px;
+            border-radius: 18px;
+            font-size: 1em;
+            line-height: 1.75;
+            border: 2px solid transparent;
+        }
+        .bubble.user {
+            align-self: flex-end;
+            background: rgba(37,99,235,0.08);
+            border-color: rgba(37,99,235,0.2);
+            text-align: right;
+        }
+        .bubble.ai {
+            align-self: flex-start;
+            background: white;
+            border-color: var(--border);
+        }
+        .bubble.ai.wrong {
+            border-color: rgba(220,38,38,0.3);
+            background: rgba(220,38,38,0.04);
+        }
+        .bubble-label {
+            font-size: 0.75em;
+            font-weight: 700;
+            opacity: 0.55;
+            margin-bottom: 5px;
+        }
+
+        /* 스텝 리스트 */
+        .step-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 22px;
+            box-shadow: var(--shadow);
+        }
+        .step-num {
+            min-width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--accent1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.1em;
+            color: white;
+            flex-shrink: 0;
+        }
+        .step-num.red { background: var(--accent-red); }
+        .step-item p { font-size: 1em; line-height: 1.75; color: var(--text-dim); }
+        .step-item p strong { color: var(--text-main); }
+
+        /* 단어 칩 */
+        .word-row {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .word-chip {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 28px;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.22s;
+            color: var(--text-main);
+            box-shadow: var(--shadow);
+        }
+        .word-chip:hover {
+            border-color: var(--accent1);
+            background: #eff6ff;
+            transform: scale(1.05);
+        }
+        .word-chip.selected {
+            background: var(--accent2);
+            border-color: var(--accent2);
+            color: white;
+        }
+        .word-chip.blank {
+            background: var(--accent1);
+            border-color: var(--accent1);
+            color: white;
+            font-weight: 900;
+            cursor: default;
+        }
+
+        /* 강사 소개 */
+        .speaker-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 56px;
+            align-items: center;
+            width: 100%;
+            max-width: 1060px;
+        }
+        .speaker-photo-wrap img {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            border-radius: 20px;
+            display: block;
+            border: 2px solid var(--border);
+            box-shadow: var(--shadow-lg);
+        }
+        .speaker-photo-placeholder {
+            width: 100%;
+            aspect-ratio: 3/4;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(5,150,105,0.06));
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5em;
+        }
+        .speaker-tag {
+            font-size: 0.72em;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            color: var(--accent2);
+            margin-bottom: 12px;
+        }
+        .speaker-name { font-size: 3em; font-weight: 900; line-height: 1.1; }
+        .speaker-name-en {
+            font-size: 0.95em;
+            letter-spacing: 0.18em;
+            color: var(--text-dim);
+            margin-top: 6px;
+            margin-bottom: 20px;
+        }
+        .speaker-divider {
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            border-radius: 2px;
+            margin-bottom: 24px;
+        }
+        .speaker-roles { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+        .speaker-role-org {
+            font-size: 0.72em;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--accent1);
+            margin-bottom: 3px;
+        }
+        .speaker-role-title { font-size: 1.1em; font-weight: 700; }
+        .speaker-role-title.past { font-weight: 400; color: var(--text-dim); }
+        .speaker-edu { border-top: 2px solid var(--border); padding-top: 16px; }
+        .speaker-edu-label {
+            font-size: 0.72em;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+        .speaker-edu-text { font-size: 1em; line-height: 1.75; color: var(--text-dim); }
+        .speaker-edu-text strong { color: var(--text-main); }
+
+        /* VS 비교 */
+        .vs-wrap {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 18px;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .vs-badge { font-size: 1.8em; font-weight: 900; color: var(--accent3); text-align: center; }
+
+        /* 태그 */
+        .tag {
+            display: inline-block;
+            font-size: 0.75em;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 100px;
+            margin-bottom: 10px;
+        }
+        .tag.red { background: rgba(220,38,38,0.08); color: var(--accent-red); }
+        .tag.gold { background: rgba(217,119,6,0.08); color: var(--accent3); }
+
+        /* 네비게이션 */
+        .nav {
+            position: fixed;
+            bottom: 28px;
+            right: 36px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 100;
+        }
+        .nav-btn {
+            background: white;
+            border: 2px solid var(--border);
+            color: var(--text-main);
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.22s;
+            box-shadow: var(--shadow);
+        }
+        .nav-btn:hover {
+            background: var(--accent1);
+            color: white;
+            border-color: var(--accent1);
+            transform: scale(1.08);
+        }
+        .nav-counter {
+            font-size: 0.75em;
+            font-weight: 700;
+            color: var(--text-dim);
+            min-width: 48px;
+            text-align: center;
+        }
+
+        @media (max-width: 800px) {
+            html { font-size: 17px; }
+            .slide { padding: 28px 20px; }
+            h1 { font-size: 2.8em; }
+            h2 { font-size: 2em; }
+            .col2, .col3 { grid-template-columns: 1fr; }
+            .vs-wrap { grid-template-columns: 1fr; }
+            .speaker-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+<div class="slide-viewport" id="viewport">
+
+<!-- ══════════════════════════════════
+     슬라이드 1 — 타이틀
+═══════════════════════════════════ -->
+<div class="slide active" id="s1">
+    <div class="content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+        <span class="slide-label">AI 특강 · 2026</span>
+        <h1 style="margin-bottom:20px;">
+            세상이 갑자기<br>
+            <span class="blue">신기해졌습니다</span>
+        </h1>
+        <p class="lead" style="max-width:720px; text-align:center; margin-bottom:32px;">
+            말만 하면 글이 써지고, 물어보면 뭐든 대답하고,<br>
+            사진 한 장으로 번역까지 되는 세상.<br>
+            <strong style="color:var(--text-main);">오늘, 같이 한 번 써봅니다.</strong>
+        </p>
+        <div style="display:flex; gap:18px; justify-content:center; flex-wrap:wrap; width:100%; max-width:900px;">
+            <div class="card" style="flex:1; min-width:200px; text-align:center;">
+                <span class="icon">💬</span>
+                <h3>ChatGPT</h3>
+                <p>"오늘 점심 뭐 먹지?" 물어봤더니 레시피까지 알려줬다</p>
+            </div>
+            <div class="card" style="flex:1; min-width:200px; text-align:center;">
+                <span class="icon">📸</span>
+                <h3>AI 카메라</h3>
+                <p>스마트폰이 알아서 얼굴 인식, 흔들림 보정까지</p>
+            </div>
+            <div class="card" style="flex:1; min-width:200px; text-align:center;">
+                <span class="icon">🗣️</span>
+                <h3>AI 번역</h3>
+                <p>영어로 말해도 실시간으로 한국어로 통역해 줍니다</p>
+            </div>
+        </div>
+        <div style="margin-top:32px; padding:18px 32px; background:rgba(37,99,235,0.07); border-radius:14px; font-size:1em; color:var(--text-dim);">
+            ✋ <strong style="color:var(--text-main);">어렵지 않습니다. 틀려도 괜찮아요. AI는 혼내지 않습니다 😊</strong>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 2 — 강사 소개
+═══════════════════════════════════ -->
+<div class="slide" id="s2">
+    <div class="speaker-layout">
+        <div class="speaker-photo-wrap">
+            <img src="inae.jpg" alt="강사 사진"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="speaker-photo-placeholder" style="display:none;">👩‍💻</div>
+        </div>
+        <div>
+            <div class="speaker-tag">오늘의 강사</div>
+            <div class="speaker-name">허인애</div>
+            <div class="speaker-name-en">INAE HUR</div>
+            <div class="speaker-divider"></div>
+            <div class="speaker-roles">
+                <div>
+                    <div class="speaker-role-org">현재 · 홍콩 레이저발 주식회사</div>
+                    <div class="speaker-role-title">AI 센터 총괄 책임자</div>
+                </div>
+                <div>
+                    <div class="speaker-role-org">전 · 미국 국립보건원 (NIH)</div>
+                    <div class="speaker-role-title past">데이터 과학자 — 의료 영상 분석</div>
+                </div>
+            </div>
+            <div class="speaker-edu">
+                <div class="speaker-edu-label">학력</div>
+                <div class="speaker-edu-text">
+                    <strong>아이오와 주립대학교</strong><br>
+                    생체의공학 박사 (PhD)<br>
+                    <span style="color:#9ca3af; font-size:0.88em;">컴퓨터 비전 · 머신러닝</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 3 — AI란? (쉽게)
+═══════════════════════════════════ -->
+<div class="slide" id="s3">
+    <div class="content">
+        <div class="slide-label">첫 번째 이야기</div>
+        <h2>AI가 대체 <span class="blue">뭘까요?</span></h2>
+        <p class="lead">한 마디로 — <strong>질문하면 대답해 주는 똑똑한 비서</strong>입니다.<br>정답 기계가 아니라, 도와주는 도구예요.</p>
+        <div class="grid col3">
+            <div class="card blue">
+                <span class="icon">🤝</span>
+                <h3>내 편 비서</h3>
+                <p>모르는 게 있으면 물어보면 됩니다. 24시간 언제든 대답해 줍니다.</p>
+            </div>
+            <div class="card green">
+                <span class="icon">📚</span>
+                <h3>엄청 많이 읽었어요</h3>
+                <p>인터넷의 수많은 글을 읽어서 잘 대답합니다. 백과사전보다 더 많이 알아요.</p>
+            </div>
+            <div class="card orange">
+                <span class="icon">🎯</span>
+                <h3>뭐든 도와줘요</h3>
+                <p>번역, 글쓰기, 요리 레시피, 건강 정보까지 — 다양하게 도와줍니다.</p>
+            </div>
+        </div>
+        <div class="highlight-box green" style="text-align:center; margin-top:24px;">
+            💡 <strong>오늘의 핵심:</strong> "AI = 질문하면 답해주는 도구" — 이것만 기억하세요!
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 4 — 우리 주변 AI
+═══════════════════════════════════ -->
+<div class="slide" id="s4">
+    <div class="content">
+        <div class="slide-label">첫 번째 이야기</div>
+        <h2>사실 이미 <span class="blue">매일 쓰고 계셨어요 🔍</span></h2>
+        <p class="lead" style="margin-bottom:16px;">하루에도 수십 번, AI를 만나고 있습니다.</p>
+        <div class="grid col3">
+            <div class="card">
+                <span class="icon">📱</span>
+                <h3>스마트폰</h3>
+                <p>사진 찍을 때 자동으로 예쁘게 보정해 주는 것 → AI</p>
+            </div>
+            <div class="card">
+                <span class="icon">📺</span>
+                <h3>유튜브·넷플릭스</h3>
+                <p>내가 좋아할 것 같은 영상을 골라서 추천해 주는 것 → AI</p>
+            </div>
+            <div class="card">
+                <span class="icon">🚗</span>
+                <h3>내비게이션</h3>
+                <p>막히는 길 피해서 빠른 길 알려주는 것 → AI</p>
+            </div>
+            <div class="card">
+                <span class="icon">🏥</span>
+                <h3>병원</h3>
+                <p>X레이·CT 사진 분석해서 의사 선생님 도와주는 것 → AI</p>
+            </div>
+            <div class="card">
+                <span class="icon">📧</span>
+                <h3>문자·이메일</h3>
+                <p>스팸 문자 자동으로 걸러주는 것 → AI</p>
+            </div>
+            <div class="card">
+                <span class="icon">🛒</span>
+                <h3>쿠팡·네이버</h3>
+                <p>"이거 어떠세요?" 관련 상품 추천해 주는 것 → AI</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 5 — 실습 ① 대화하기
+═══════════════════════════════════ -->
+<div class="slide" id="s5">
+    <div class="content">
+        <div class="slide-label" style="background:rgba(5,150,105,0.1); color:var(--accent2);">✅ 실습 첫 번째</div>
+        <h2>AI에게 <span class="green">말 걸어보기</span> 💬</h2>
+        <p class="lead">목표: <strong>"AI랑 대화된다!"</strong> 는 것을 직접 느껴보기</p>
+
+        <div class="practice-box">
+            <h3>📱 지금 바로 따라해 보세요</h3>
+            <div class="practice-item">
+                <div class="practice-num">1</div>
+                <p>스마트폰에서 <strong>인터넷(크롬 또는 사파리)</strong>을 열어주세요</p>
+            </div>
+            <div class="practice-item">
+                <div class="practice-num">2</div>
+                <p>주소창에 <strong style="color:var(--accent1); font-size:1.1em;">chatgpt.com</strong> 을 입력하고 접속해요<br>
+                <span style="color:#9ca3af; font-size:0.88em;">※ 회원가입 없이도 바로 써볼 수 있어요</span></p>
+            </div>
+            <div class="practice-item">
+                <div class="practice-num">3</div>
+                <p>아래 질문 중 하나를 <strong>직접 입력</strong>해 보세요</p>
+            </div>
+        </div>
+
+        <div class="grid col3" style="margin-top:18px;">
+            <div class="card green" style="text-align:center;">
+                <span class="icon">🍽️</span>
+                <h3>"오늘 저녁 메뉴 추천해줘"</h3>
+                <p>가장 쉽고 바로 답이 나와요</p>
+            </div>
+            <div class="card green" style="text-align:center;">
+                <span class="icon">🥗</span>
+                <h3>"건강에 좋은 식단 알려줘"</h3>
+                <p>내 상황에 맞게 물어봐도 돼요</p>
+            </div>
+            <div class="card green" style="text-align:center;">
+                <span class="icon">💪</span>
+                <h3>"허리 아플 때 운동 알려줘"</h3>
+                <p>실생활 고민을 바로 물어봐요</p>
+            </div>
+        </div>
+
+        <div class="highlight-box gold" style="text-align:center;">
+            🔥 바로 답이 나옵니다! — "이게 된다고?" 하는 순간이 옵니다
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 6 — 실습 ② 문자 써주기
+═══════════════════════════════════ -->
+<div class="slide" id="s6">
+    <div class="content">
+        <div class="slide-label" style="background:rgba(5,150,105,0.1); color:var(--accent2);">✅ 실습 두 번째</div>
+        <h2>문자·카톡 <span class="green">대신 써달라고 하기</span> ✍️</h2>
+        <p class="lead">목표: <strong>"글쓰기 부담 없이 멋진 문자 보내기"</strong></p>
+
+        <div class="grid col2" style="margin-top:8px;">
+            <div>
+                <div class="practice-box" style="height:100%;">
+                    <h3>💬 이렇게 입력해 보세요</h3>
+                    <div class="practice-item">
+                        <div class="practice-num">👉</div>
+                        <p><strong>"친구에게 안부 문자 써줘"</strong></p>
+                    </div>
+                    <div class="practice-item">
+                        <div class="practice-num">👉</div>
+                        <p><strong>"감사 인사 메시지 만들어줘"</strong></p>
+                    </div>
+                    <div class="practice-item">
+                        <div class="practice-num">👉</div>
+                        <p><strong>"미안하지만 약속 미뤄달라고 정중하게 써줘"</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-wrap">
+                <p style="font-size:0.8em; color:var(--text-dim); margin-bottom:4px;">💡 이런 식으로 대화가 됩니다</p>
+                <div class="bubble user">
+                    <div class="bubble-label">내가 입력</div>
+                    친구한테 오랜만에 안부 묻는 문자 써줘
+                </div>
+                <div class="bubble ai">
+                    <div class="bubble-label">AI 답변 🤖</div>
+                    안녕! 오랜만이야 😊<br>
+                    요즘 어떻게 지내? 잘 지내고 있는지<br>
+                    갑자기 네 생각이 나서 연락해봤어.<br>
+                    조만간 시간 되면 같이 밥 한번 먹자!
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-box" style="text-align:center;">
+            ✨ 바로 써먹을 수 있어요! 수정해서 보내도 됩니다
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 7 — 실습 ③ 음성으로 쓰기
+═══════════════════════════════════ -->
+<div class="slide" id="s7">
+    <div class="content">
+        <div class="slide-label" style="background:rgba(5,150,105,0.1); color:var(--accent2);">✅ 실습 세 번째</div>
+        <h2>타이핑 말고 <span class="green">말로 물어보기</span> 🎤</h2>
+        <p class="lead">목표: <strong>"타이핑 안 해도 된다!"</strong> — 5060 최고 핵심 기능</p>
+
+        <div class="grid col2" style="margin-top:8px;">
+            <div class="practice-box">
+                <h3>🎙️ 사용 방법</h3>
+                <div class="practice-item">
+                    <div class="practice-num">1</div>
+                    <p>ChatGPT 앱에서 <strong>마이크 버튼</strong>을 눌러요</p>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-num">2</div>
+                    <p><strong>말로 질문</strong>하면 됩니다. 입력 끝!</p>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-num">3</div>
+                    <p>AI가 <strong>말로 대답</strong>도 해줍니다</p>
+                </div>
+            </div>
+            <div>
+                <p style="font-size:0.88em; color:var(--text-dim); margin-bottom:12px;">🗣️ 이렇게 말해보세요</p>
+                <div class="grid col2" style="gap:12px;">
+                    <div class="card" style="text-align:center; padding:18px;">
+                        <span class="icon" style="font-size:1.8em;">☁️</span>
+                        <h3 style="font-size:0.95em;">"서울 날씨 어때?"</h3>
+                    </div>
+                    <div class="card" style="text-align:center; padding:18px;">
+                        <span class="icon" style="font-size:1.8em;">💊</span>
+                        <h3 style="font-size:0.95em;">"혈압 낮추는 방법 알려줘"</h3>
+                    </div>
+                    <div class="card" style="text-align:center; padding:18px;">
+                        <span class="icon" style="font-size:1.8em;">🍎</span>
+                        <h3 style="font-size:0.95em;">"당뇨에 좋은 음식은?"</h3>
+                    </div>
+                    <div class="card" style="text-align:center; padding:18px;">
+                        <span class="icon" style="font-size:1.8em;">🗞️</span>
+                        <h3 style="font-size:0.95em;">"오늘 주요 뉴스 알려줘"</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-box gold" style="text-align:center;">
+            👍 <strong>"이거 편하다!"</strong> — 타이핑 어려우신 분들께 가장 좋은 기능입니다
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 8 — 실습 ④ 손주 동화
+═══════════════════════════════════ -->
+<div class="slide" id="s8">
+    <div class="content">
+        <div class="slide-label" style="background:rgba(5,150,105,0.1); color:var(--accent2);">✅ 실습 네 번째</div>
+        <h2>손주에게 <span class="green">동화책 만들어주기</span> 👶</h2>
+        <p class="lead">목표: <strong>감동 + 재미!</strong> — "이걸 내가 만들었다" 하는 뿌듯함</p>
+
+        <div class="grid col2" style="margin-top:8px;">
+            <div class="practice-box">
+                <h3>✏️ 이렇게 입력해 보세요</h3>
+                <div class="practice-item">
+                    <div class="practice-num">👉</div>
+                    <p><strong>"7살 아이에게 우주를 쉽게 설명해줘"</strong></p>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-num">👉</div>
+                    <p><strong>"손주 동화 만들어줘. 주인공 이름은 민준이야"</strong></p>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-num">👉</div>
+                    <p><strong>"초등학생에게 해줄 칭찬 문장 만들어줘"</strong></p>
+                </div>
+            </div>
+            <div>
+                <div class="bubble ai" style="margin-top:26px;">
+                    <div class="bubble-label">AI 답변 예시 🤖</div>
+                    <strong>민준이의 우주 탐험</strong> 🚀<br><br>
+                    어느 날 민준이는 작은 로켓을 탔어요.<br>
+                    하늘 위 별들이 "안녕!" 하고 인사했죠.<br>
+                    달 아저씨가 말했어요, "용감한 민준이,<br>
+                    우주는 네 것이야!" ✨
+                </div>
+                <div class="highlight-box green" style="margin-top:14px; text-align:center; font-size:0.95em;">
+                    ❤️ 손주 이름 넣으면 세상에 하나뿐인 동화가 됩니다
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 9 — ChatGPT 작동 원리 (쉽게)
+═══════════════════════════════════ -->
+<div class="slide" id="s9">
+    <div class="content">
+        <div class="slide-label">두 번째 이야기</div>
+        <h2>AI는 어떻게 <span class="blue">대답할까요?</span></h2>
+        <p class="lead">아주 쉽게 설명하면 — <strong>"다음 단어를 예측하는 기계"</strong>입니다.</p>
+
+        <div class="word-row">
+            <div class="word-chip">오늘</div>
+            <div class="word-chip">날씨가</div>
+            <div class="word-chip blank">?</div>
+        </div>
+        <p style="text-align:center; color:var(--text-dim); font-size:1.1em; margin-bottom:14px;">👆 다음에 어떤 단어가 자연스러울까요? 골라보세요</p>
+        <div class="word-row">
+            <div class="word-chip" onclick="pickWord(this)">좋네요</div>
+            <div class="word-chip" onclick="pickWord(this)">나빠요</div>
+            <div class="word-chip" onclick="pickWord(this)">춥네요</div>
+            <div class="word-chip" onclick="pickWord(this)">더워요</div>
+        </div>
+
+        <div class="highlight-box">
+            <strong>💡 ChatGPT도 이것과 똑같습니다.</strong><br>
+            인터넷의 엄청나게 많은 글을 읽고, "이 다음엔 어떤 말이 오는지" 익혔어요.
+            그 덕분에 자연스럽게 대답할 수 있는 것입니다.<br><br>
+            <span style="color:var(--accent3); font-weight:700;">📌 그래서 AI는 가끔 틀리기도 합니다. 중요한 건 꼭 다시 확인하세요.</span>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 10 — 주의사항 (통합·간소화)
+═══════════════════════════════════ -->
+<div class="slide" id="s10">
+    <div class="content">
+        <div class="slide-label">세 번째 이야기 · 조심하세요</div>
+        <h2>이것만 <span class="red">주의하면 됩니다</span></h2>
+        <p class="lead" style="margin-bottom:16px;">복잡하지 않아요. 딱 두 가지만 기억하세요.</p>
+
+        <div class="grid col2">
+            <div class="card red">
+                <span class="icon">🤥</span>
+                <h3>AI가 가끔 틀린 말을 합니다</h3>
+                <p>
+                    AI는 자신 있게 대답하지만, 틀릴 때도 있어요.<br>
+                    병원 이름, 약 이름, 전화번호 같은 것은 꼭 직접 확인하세요.<br><br>
+                    <strong>✅ 참고는 하되, 중요한 건 검색이나 전화로 다시 확인!</strong>
+                </p>
+            </div>
+            <div class="card red">
+                <span class="icon">📞</span>
+                <h3>딥페이크·보이스피싱 조심</h3>
+                <p>
+                    AI로 가족 목소리를 그대로 흉내낼 수 있습니다.<br>
+                    <strong>"엄마, 나 사고 났어. 돈 보내줘"</strong> — 실제 있는 범죄예요.<br><br>
+                    <strong>✅ 전화로 돈 요청 오면 반드시 직접 다시 전화해서 확인!</strong>
+                </p>
+            </div>
+        </div>
+
+        <div class="grid col2" style="margin-top:0;">
+            <div class="card orange">
+                <span class="icon">🔒</span>
+                <h3>개인정보는 입력하지 마세요</h3>
+                <p>ChatGPT에 주민번호·계좌번호는 절대 입력하지 마세요.<br>민감한 정보는 AI에게 묻지 않는 것이 안전합니다.</p>
+            </div>
+            <div class="card orange">
+                <span class="icon">💊</span>
+                <h3>의료·법률 정보는 전문가에게</h3>
+                <p>AI가 알려주는 약 복용법·법률 내용은 참고만 하세요.<br>중요한 결정은 반드시 의사·약사·전문가에게 확인하세요.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 11 — 마무리
+═══════════════════════════════════ -->
+<div class="slide" id="s11">
+    <div class="content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+        <div class="slide-label">오늘을 마치며</div>
+        <h2 style="margin-bottom:28px; line-height:1.6;">
+            잘 쓰는 사람이 아니라<br>
+            <span class="blue">"써본 사람"이 이기는 시대입니다.</span>
+        </h2>
+        <p class="lead" style="max-width:680px; margin-bottom:32px;">
+            오늘 한 번이라도 직접 해보셨다면<br>
+            이미 시작하신 겁니다. 틀려도 괜찮아요. 😊
+        </p>
+        <div class="grid col3" style="width:100%; text-align:left;">
+            <div class="card green">
+                <span class="icon">✅</span>
+                <h3>써보세요</h3>
+                <p>메뉴 추천, 날씨, 문자 쓰기 — 오늘 배운 것 바로 써봐요</p>
+            </div>
+            <div class="card blue">
+                <span class="icon">🔍</span>
+                <h3>확인하세요</h3>
+                <p>중요한 정보는 AI 말만 믿지 말고 한 번 더 확인하는 습관</p>
+            </div>
+            <div class="card orange">
+                <span class="icon">🛡️</span>
+                <h3>조심하세요</h3>
+                <p>개인정보 입력 금지, 보이스피싱 의심, 가짜 정보 주의</p>
+            </div>
+        </div>
+        <div class="highlight-box green" style="margin-top:24px; font-size:1.1em; max-width:700px;">
+            🌟 <strong>AI는 도구입니다.</strong><br>
+            자녀들에게 물어보지 않아도 됩니다. 이제 여러분 손 안에 비서가 생겼습니다.
+        </div>
+    </div>
+</div>
+
+<!-- ─── 네비게이션 ─── -->
+</div><!-- /slide-viewport -->
+
+<div class="nav">
+    <button class="nav-btn" onclick="go(-1)">◀</button>
+    <span class="nav-counter" id="counter">1 / 11</span>
+    <button class="nav-btn" onclick="go(1)">▶</button>
+</div>
+
+<script>
+    const slides   = document.querySelectorAll('.slide');
+    const viewport = document.getElementById('viewport');
+    const total    = slides.length;
+    let cur = 0;
+
+    function show(n) {
+        slides[cur].classList.remove('active');
+        cur = (n + total) % total;
+        slides[cur].classList.add('active');
+        document.getElementById('counter').textContent = `${cur + 1} / ${total}`;
+        document.getElementById('progress').style.width = `${((cur + 1) / total) * 100}%`;
+        viewport.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function go(dir) { show(cur + dir); }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === ' ') go(1);
+        else if (e.key === 'ArrowLeft') go(-1);
+    });
+
+    let tx = 0;
+    document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+    document.addEventListener('touchend', e => {
+        const d = tx - e.changedTouches[0].clientX;
+        if (Math.abs(d) > 50) go(d > 0 ? 1 : -1);
+    });
+
+    function pickWord(el) {
+        document.querySelectorAll('.word-chip[onclick]').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        setTimeout(() => el.classList.remove('selected'), 2000);
+    }
+
+    document.getElementById('progress').style.width = `${(1 / total) * 100}%`;
+</script>
+</body>
+</html>
