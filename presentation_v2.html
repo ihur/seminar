@@ -1299,6 +1299,8 @@
   <a href="#s1b"></a>
   <a href="#s2"></a>
   <a href="#s7speed"></a>
+  <a href="#s7llm"></a>
+  <a href="#s7attn"></a>
   <a href="#s7stages"></a>
   <a href="#s7phys"></a>
   <a href="#s7trend"></a>
@@ -1575,6 +1577,344 @@
       letter-spacing: 0.1em;
     }
   </style>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 7-LLM: LLM 심화 — 어떻게 작동하는가
+═══════════════════════════════════════════ -->
+<section class="slide" id="s7llm" style="background:#000;flex-direction:column;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 25% 50%, #001a28 0%, #000 55%);"></div>
+
+  <div style="position:relative;z-index:2;width:100%;max-width:1300px;padding:1.5rem 4%;display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center;min-height:100vh;">
+
+    <!-- LEFT: title + interactive widget -->
+    <div style="display:flex;flex-direction:column;gap:1.8rem;">
+
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.12rem;letter-spacing:0.5em;color:var(--cell-glow);opacity:1;margin-bottom:1rem;">LLM · ChatGPT는 왜 말을 잘할까요?</div>
+        <h2 style="font-family:'Noto Serif KR',serif;font-weight:900;font-size:clamp(2.93rem, 5.25vw, 4.55rem);line-height:1.2;margin-bottom:0.8rem;">
+          ChatGPT는 왜<br><span style="color:var(--cell-glow)">말을 잘할까요?</span>
+        </h2>
+        <p style="font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:clamp(1.33rem, 1.95vw, 1.55rem);color:rgba(255,255,255,0.92);line-height:1.9;">
+          단 하나의 원리 — <strong style="color:rgba(255,255,255,0.9)">"다음에 올 단어를 예측하라"</strong><br>
+          이 작업을 수조 번 반복하면 번역·코딩·진단 능력이 저절로 나타납니다
+        </p>
+      </div>
+
+      <!-- Interactive next-word widget -->
+      <div id="llm-widget" style="background:rgba(255,255,255,0.03);border:1px solid rgba(79,195,247,0.15);padding:1.5rem;border-radius:2px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:0.79rem;letter-spacing:0.4em;color:var(--cell-glow);opacity:1;margin-bottom:1rem;">직접 체험 — 당신이 AI라면?</div>
+
+        <div id="llm-sentence-box"
+          style="font-family:'Noto Sans KR',sans-serif;font-size:1.1rem;font-weight:700;color:rgba(255,255,255,0.95);line-height:1.8;margin-bottom:1rem;padding:0.8rem 1rem;background:rgba(0,0,0,0.3);border-radius:4px;border:1px solid rgba(255,255,255,0.08);">
+        </div>
+
+        <div id="llm-choices-box" style="display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:1rem;"></div>
+
+        <div id="llm-result-box" style="min-height:3.5rem;font-family:'Noto Sans KR',sans-serif;font-size:1rem;line-height:1.8;"></div>
+
+        <button id="llm-next-btn" onclick="llmNext()"
+          style="display:none;margin-top:0.8rem;background:rgba(111,247,194,0.1);border:1px solid rgba(111,247,194,0.3);color:#6ff7c2;font-family:'Noto Sans KR',sans-serif;font-size:0.95rem;padding:0.5rem 1rem;border-radius:4px;cursor:pointer;">다음 문장 →</button>
+      </div>
+
+      <!-- Stats row -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;">
+        <div style="padding:0.7rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);text-align:center;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.62rem, 3.0vw, 2.44rem);color:var(--cell-glow);line-height:1;">1.8조</div>
+          <div style="font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:0.79rem;color:rgba(255,255,255,0.95);letter-spacing:0.08em;margin-top:0.2rem;">GPT-4 추정 파라미터</div>
+        </div>
+        <div style="padding:0.7rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);text-align:center;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.62rem, 3.0vw, 2.44rem);color:var(--gold);line-height:1;">100조</div>
+          <div style="font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:0.79rem;color:rgba(255,255,255,0.95);letter-spacing:0.08em;margin-top:0.2rem;">인간 뇌 시냅스 수</div>
+        </div>
+        <div style="padding:0.7rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);text-align:center;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.62rem, 3.0vw, 2.44rem);color:#b39ddb;line-height:1;">2개월</div>
+          <div style="font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:0.79rem;color:rgba(255,255,255,0.95);letter-spacing:0.08em;margin-top:0.2rem;">ChatGPT 1억 돌파</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: visual diagram (Pre-training → RLHF → Emergence) -->
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;height:100%;padding:2rem 0;">
+
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:0.4em;color:rgba(255,255,255,0.94);margin-bottom:1.8rem;text-align:center;">어떻게 만들어지는가</div>
+
+      <!-- Step 1 box -->
+      <div style="width:100%;max-width:340px;padding:1.4rem 1.6rem;border:1px solid rgba(79,195,247,0.25);background:rgba(79,195,247,0.06);position:relative;">
+        <div style="position:absolute;top:-1px;left:1.6rem;font-family:'Bebas Neue',sans-serif;font-size:0.73rem;letter-spacing:0.4em;color:var(--cell-glow);background:#000;padding:0 0.4rem;transform:translateY(-50%);">STEP 1 · PRE-TRAINING</div>
+        <p style="font-family:'Noto Serif KR',serif;font-weight:700;font-size:clamp(1.62rem, 2.7vw, 1.95rem);color:var(--white);margin-bottom:0.4rem;">수조 개 문장 학습</p>
+        <p style="font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:clamp(1.27rem, 1.8vw, 1.46rem);color:rgba(255,255,255,0.9);line-height:1.7;">책·논문·코드·웹. GPU 수천 개, 수개월, 비용 수백억 원.</p>
+      </div>
+
+      <!-- Connector -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;">
+        <div style="width:1px;height:12px;background:rgba(201,168,76,0.3);"></div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:0.73rem;letter-spacing:0.2em;color:rgba(201,168,76,0.4);">↓</div>
+        <div style="width:1px;height:12px;background:rgba(201,168,76,0.3);"></div>
+      </div>
+
+      <!-- Step 2 box -->
+      <div style="width:100%;max-width:340px;padding:1.4rem 1.6rem;border:1px solid rgba(201,168,76,0.25);background:rgba(201,168,76,0.06);position:relative;">
+        <div style="position:absolute;top:-1px;left:1.6rem;font-family:'Bebas Neue',sans-serif;font-size:0.73rem;letter-spacing:0.4em;color:var(--gold);background:#000;padding:0 0.4rem;transform:translateY(-50%);">STEP 2 · RLHF</div>
+        <p style="font-family:'Noto Serif KR',serif;font-weight:700;font-size:clamp(1.62rem, 2.7vw, 1.95rem);color:var(--white);margin-bottom:0.4rem;">인간 피드백으로 정렬</p>
+        <p style="font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:clamp(1.27rem, 1.8vw, 1.46rem);color:rgba(255,255,255,0.9);line-height:1.7;">"좋은 답"을 강화하고 "나쁜 답"을 억제합니다.</p>
+      </div>
+
+      <!-- Connector -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;">
+        <div style="width:1px;height:12px;background:rgba(179,157,219,0.3);"></div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:0.73rem;letter-spacing:0.2em;color:rgba(179,157,219,0.4);">↓</div>
+        <div style="width:1px;height:12px;background:rgba(179,157,219,0.3);"></div>
+      </div>
+
+      <!-- Step 3 box — Emergence highlighted -->
+      <div style="width:100%;max-width:340px;padding:1.4rem 1.6rem;border:1px solid rgba(179,157,219,0.35);background:rgba(179,157,219,0.07);position:relative;">
+        <div style="position:absolute;top:-1px;left:1.6rem;font-family:'Bebas Neue',sans-serif;font-size:0.73rem;letter-spacing:0.4em;color:#b39ddb;background:#000;padding:0 0.4rem;transform:translateY(-50%);">STEP 3 · EMERGENCE</div>
+        <p style="font-family:'Noto Serif KR',serif;font-weight:700;font-size:clamp(1.62rem, 2.7vw, 1.95rem);color:var(--white);margin-bottom:0.4rem;">학습 안 한 능력이 나타난다</p>
+        <p style="font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:clamp(1.27rem, 1.8vw, 1.46rem);color:rgba(255,255,255,0.9);line-height:1.7;">일정 규모를 넘으면 갑자기. <strong style="color:rgba(255,255,255,0.95);font-weight:400;">연구자들도 왜인지 모릅니다.</strong></p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Widget JS -->
+  <script>
+  (function() {
+    const llmQ = [
+      {
+        pre: "오늘 저녁에",
+        suf: "먹을까요?",
+        choices: [
+          { word: "치킨", type: "best", msg: "✅ AI도 이걸 가장 먼저 예측해요! 저녁+먹다 조합에서 '치킨'은 확률 1위" },
+          { word: "삼겹살", type: "good", msg: "👍 이것도 아주 자연스러워요. AI가 두 번째로 높은 확률로 예측하는 단어예요" },
+          { word: "뭘", type: "ok", msg: "🤔 말은 되지만 약간 어색해요. AI는 좀 더 구체적인 단어를 먼저 예측해요" },
+          { word: "파란색", type: "wrong", msg: "❌ 문맥상 전혀 어울리지 않아요. AI는 이 단어의 확률을 거의 0으로 봐요" },
+          { word: "서류", type: "wrong", msg: "❌ 저녁+먹다에 '서류'는 문맥에 맞지 않아요. AI가 틀린 예측으로 처리해요" },
+        ]
+      },
+      {
+        pre: "비가 오는 날에는",
+        suf: "이 생각난다.",
+        choices: [
+          { word: "파전", type: "best", msg: "✅ 완벽해요! '비+파전' 조합은 한국어 텍스트에서 셀 수 없이 등장해서 AI가 최우선 예측해요" },
+          { word: "막걸리", type: "good", msg: "👍 역시 자연스러워요. '비+막걸리'도 자주 쓰이는 조합이에요" },
+          { word: "우산", type: "ok", msg: "🤔 말은 되는데 '생각난다'와 어울리려면 좀 더 감성적인 단어가 더 자연스러워요" },
+          { word: "컴퓨터", type: "wrong", msg: "❌ 비 오는 날의 감성과 전혀 맞지 않아요. AI는 이 조합의 확률을 거의 0으로 봐요" },
+          { word: "세금", type: "wrong", msg: "❌ 문맥과 완전히 동떨어진 단어예요. AI가 절대 예측하지 않는 조합이에요" },
+        ]
+      },
+      {
+        pre: "회의가 끝나고",
+        suf: "한 잔 해요.",
+        choices: [
+          { word: "커피", type: "best", msg: "✅ 가장 자연스러운 선택! AI도 이 문맥에서 '커피'를 가장 높은 확률로 예측해요" },
+          { word: "맥주", type: "good", msg: "👍 이것도 충분히 자연스러워요. 퇴근 후 회식 맥락에서 자주 등장하는 조합이에요" },
+          { word: "나중에", type: "ok", msg: "🤔 말은 되지만 '한 잔 해요'와 바로 연결하기에는 약간 어색해요" },
+          { word: "도서관", type: "wrong", msg: "❌ '회의 후 도서관 한 잔'은 문맥이 전혀 맞지 않아요. AI 확률 거의 0이에요" },
+          { word: "2024년", type: "wrong", msg: "❌ 숫자/연도가 이 자리에 오는 건 문법적으로도 어색해요. AI가 절대 예측하지 않아요" },
+        ]
+      },
+      {
+        pre: "이 보고서는 내일까지",
+        suf: "해야 합니다.",
+        choices: [
+          { word: "제출", type: "best", msg: "✅ 완벽해요! '보고서+내일까지+제출'은 업무 문서에서 가장 흔한 패턴이에요" },
+          { word: "완성", type: "good", msg: "👍 역시 자연스럽고 자주 쓰이는 조합이에요. AI가 두 번째로 예측하는 단어예요" },
+          { word: "검토", type: "ok", msg: "🤔 말은 충분히 되는데 '제출·완성'보다는 조금 낮은 확률로 예측돼요" },
+          { word: "춤을", type: "wrong", msg: "❌ 보고서+춤은 완전히 맞지 않아요. AI가 이 단어의 확률을 0으로 처리해요" },
+          { word: "파란색", type: "wrong", msg: "❌ 형용사가 이 자리에 들어오는 건 문법적으로도 틀려요. AI 확률 거의 0이에요" },
+        ]
+      },
+    ];
+
+    let llmCur = 0;
+    let llmAnswered = false;
+
+    const colors = { best: '#6ff7c2', good: '#a8e6a8', ok: '#f7c26f', wrong: '#ff8080' };
+
+    function llmRender() {
+      const q = llmQ[llmCur];
+      llmAnswered = false;
+      document.getElementById('llm-sentence-box').innerHTML =
+        q.pre + ' <span style="color:rgba(79,195,247,0.9);border-bottom:2px solid rgba(79,195,247,0.5);padding:0 4px;">___</span> ' + q.suf;
+      document.getElementById('llm-result-box').innerHTML = '';
+      document.getElementById('llm-next-btn').style.display = 'none';
+
+      // shuffle choices
+      const shuffled = [...q.choices].sort(() => Math.random() - 0.5);
+      const box = document.getElementById('llm-choices-box');
+      box.innerHTML = '';
+      shuffled.forEach(c => {
+        const btn = document.createElement('button');
+        btn.textContent = c.word;
+        btn.style.cssText = `background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.95);font-family:'Noto Sans KR',sans-serif;font-size:1rem;padding:0.6rem 1rem;border-radius:4px;cursor:pointer;transition:all 0.2s;`;
+        btn.onmouseover = () => { if (!llmAnswered) btn.style.background = 'rgba(79,195,247,0.15)'; };
+        btn.onmouseout = () => { if (!llmAnswered) btn.style.background = 'rgba(255,255,255,0.04)'; };
+        btn.onclick = () => llmPick(c, shuffled, btn);
+        box.appendChild(btn);
+      });
+    }
+
+    function llmPick(chosen, all, clickedBtn) {
+      if (llmAnswered) return;
+      llmAnswered = true;
+
+      // color all buttons
+      document.querySelectorAll('#llm-choices-box button').forEach(btn => {
+        const word = btn.textContent;
+        const match = all.find(c => c.word === word);
+        btn.style.background = colors[match.type] + '22';
+        btn.style.borderColor = colors[match.type] + '88';
+        btn.style.color = colors[match.type];
+        btn.style.cursor = 'default';
+      });
+
+      document.getElementById('llm-result-box').innerHTML = `
+        <div style="background:rgba(255,255,255,0.04);border-radius:4px;padding:0.8rem 1rem;border-left:3px solid ${colors[chosen.type]};">
+          <span style="color:${colors[chosen.type]};font-weight:700;font-size:1.1rem;">"${chosen.word}"</span>
+          <span style="color:rgba(255,255,255,0.95);font-size:0.95rem;"> → ${chosen.msg}</span>
+        </div>
+        <div style="margin-top:0.6rem;font-size:0.9rem;color:rgba(255,255,255,0.6);">
+          💡 LLM은 수조 번의 예측 훈련으로 이 확률 분포를 스스로 학습했어요
+        </div>`;
+
+      if (llmCur < llmQ.length - 1) {
+        document.getElementById('llm-next-btn').style.display = 'inline-block';
+      } else {
+        document.getElementById('llm-next-btn').style.display = 'none';
+        setTimeout(() => {
+          document.getElementById('llm-result-box').innerHTML += `
+            <div style="margin-top:0.8rem;background:rgba(111,247,194,0.06);border:1px solid rgba(111,247,194,0.2);border-radius:4px;padding:0.8rem 1rem;color:rgba(255,255,255,0.95);font-size:0.95rem;">
+              🎉 모든 문장 완료! ChatGPT도 이렇게 단어 하나하나를 예측하며 대화합니다.
+            </div>`;
+        }, 300);
+      }
+    }
+
+    window.llmNext = function() {
+      llmCur++;
+      llmRender();
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', llmRender);
+    } else {
+      llmRender();
+    }
+  })();
+  </script>
+  <style>@keyframes blink { from{opacity:0.4} to{opacity:1} }</style>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 7-ATTN: Prompt란 무엇인가
+═══════════════════════════════════════════ -->
+<section class="slide" id="s7attn" style="background:#000;flex-direction:column;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 35%, #100800 0%, #000 60%);"></div>
+  <div style="position:absolute;inset:0;background-image:radial-gradient(circle at 50% 50%, rgba(201,168,76,0.025) 0%, transparent 65%);"></div>
+
+  <div style="position:relative;z-index:2;width:100%;max-width:1250px;padding:1.2rem 3%;text-align:center;">
+
+    <div style="font-family:'Bebas Neue',sans-serif;letter-spacing:0.5em;font-size:0.98rem;color:var(--gold);opacity:1;margin-bottom:1.5rem;">PROMPT ENGINEERING · LLM을 잘 쓰는 방법</div>
+
+    <h2 style="font-family:'Noto Serif KR',serif;font-weight:900;font-size:clamp(2.93rem, 6.0vw, 4.88rem);margin-bottom:0.8rem;">
+      프롬프트란 <span style="color:var(--gold)">무엇인가</span>
+    </h2>
+    <p style="font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:clamp(1.43rem, 2.25vw, 1.7rem);color:rgba(255,255,255,0.9);letter-spacing:0.1em;margin-bottom:1.5rem;">
+      LLM은 강력한 엔진입니다. 그 엔진에 무엇을 어떻게 넣느냐 — 그것이 프롬프트입니다
+    </p>
+
+    <!-- Central analogy diagram -->
+    <div style="display:flex;justify-content:center;align-items:center;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+
+      <!-- Human side -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.8rem;">
+        <div style="width:64px;height:64px;border-radius:50%;border:2px solid rgba(201,168,76,0.5);background:rgba(201,168,76,0.06);display:flex;align-items:center;justify-content:center;">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="9" r="5" stroke="rgba(201,168,76,0.8)" stroke-width="1.5"/>
+            <path d="M4 26c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="rgba(201,168,76,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:0.3em;color:rgba(201,168,76,0.7);">사람</div>
+      </div>
+
+      <!-- Prompt box -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:0.73rem;letter-spacing:0.35em;color:rgba(255,255,255,0.94);margin-bottom:0.2rem;">PROMPT</div>
+        <div style="padding:1rem 1.8rem;border:1.5px solid rgba(201,168,76,0.4);background:rgba(201,168,76,0.06);min-width:200px;">
+          <p style="font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:clamp(1.43rem, 2.1vw, 1.62rem);color:rgba(255,255,255,0.96);line-height:1.8;text-align:left;">
+            "30대 직장인을 위한<br>주 3회 운동 루틴을<br>표로 만들어줘"
+          </p>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.4rem;margin-top:0.3rem;">
+          <div style="height:1px;width:30px;background:rgba(201,168,76,0.3);"></div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:0.73rem;letter-spacing:0.2em;color:rgba(201,168,76,0.4);">전달</div>
+          <div style="height:1px;width:30px;background:rgba(201,168,76,0.3);"></div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2.44rem;color:rgba(255,255,255,0.88);">→</div>
+
+      <!-- AI side -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.8rem;">
+        <div style="width:64px;height:64px;border-radius:50%;border:2px solid rgba(79,195,247,0.5);background:rgba(79,195,247,0.06);display:flex;align-items:center;justify-content:center;">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect x="4" y="8" width="20" height="14" rx="3" stroke="rgba(79,195,247,0.8)" stroke-width="1.5"/>
+            <circle cx="10" cy="13" r="2" fill="rgba(79,195,247,0.7)"><animate attributeName="opacity" values="0.4;1;0.4" dur="1.5s" repeatCount="indefinite"/></circle>
+            <circle cx="18" cy="13" r="2" fill="rgba(79,195,247,0.7)"><animate attributeName="opacity" values="0.4;1;0.4" dur="1.5s" begin="0.3s" repeatCount="indefinite"/></circle>
+            <line x1="8" y1="19" x2="20" y2="19" stroke="rgba(79,195,247,0.5)" stroke-width="1.2"/>
+            <line x1="14" y1="4" x2="14" y2="8" stroke="rgba(79,195,247,0.4)" stroke-width="1.5"/>
+            <circle cx="14" cy="4" r="1.5" fill="rgba(79,195,247,0.5)"/>
+          </svg>
+        </div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:0.3em;color:rgba(79,195,247,0.7);">AI</div>
+      </div>
+
+      <!-- Arrow -->
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2.44rem;color:rgba(255,255,255,0.88);">→</div>
+
+      <!-- Output -->
+      <div style="display:flex;flex-direction:column;align-items:flex-start;gap:0.4rem;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:0.73rem;letter-spacing:0.35em;color:rgba(255,255,255,0.94);margin-bottom:0.2rem;">OUTPUT</div>
+        <div style="padding:0.8rem 1.2rem;border:1px solid rgba(79,195,247,0.2);background:rgba(79,195,247,0.04);">
+          <table style="font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:0.95rem;color:rgba(255,255,255,0.92);border-collapse:collapse;line-height:1.8;">
+            <tr><td style="padding:0.1rem 0.6rem;border-bottom:1px solid rgba(255,255,255,0.08);color:var(--cell-glow);">월</td><td style="padding:0.1rem 0.6rem;border-bottom:1px solid rgba(255,255,255,0.08);">상체 근력 30분</td></tr>
+            <tr><td style="padding:0.1rem 0.6rem;border-bottom:1px solid rgba(255,255,255,0.08);color:var(--cell-glow);">수</td><td style="padding:0.1rem 0.6rem;border-bottom:1px solid rgba(255,255,255,0.08);">유산소 25분</td></tr>
+            <tr><td style="padding:0.1rem 0.6rem;color:var(--cell-glow);">금</td><td style="padding:0.1rem 0.6rem;">하체 근력 30분</td></tr>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 3 components of a prompt -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;text-align:left;margin-bottom:2rem;">
+
+      <div style="padding:1.2rem;border-top:2px solid rgba(201,168,76,0.5);background:rgba(201,168,76,0.04);">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.12rem;letter-spacing:0.3em;color:var(--gold);margin-bottom:0.5rem;">① 지시 · Instruction</div>
+        <p style="font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:clamp(1.27rem, 1.8vw, 1.46rem);color:rgba(255,255,255,0.92);line-height:1.8;">AI에게 무엇을 해달라고 요청하는 핵심 문장입니다.<br><span style="color:rgba(255,255,255,0.95);">"운동 루틴을 만들어줘"</span></p>
+      </div>
+
+      <div style="padding:1.2rem;border-top:2px solid rgba(79,195,247,0.5);background:rgba(79,195,247,0.04);">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.12rem;letter-spacing:0.3em;color:var(--cell-glow);margin-bottom:0.5rem;">② 맥락 · Context</div>
+        <p style="font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:clamp(1.27rem, 1.8vw, 1.46rem);color:rgba(255,255,255,0.92);line-height:1.8;">대상·상황·제약을 줄수록 더 정확한 답이 나옵니다.<br><span style="color:rgba(255,255,255,0.95);">"30대 직장인 대상"</span></p>
+      </div>
+
+      <div style="padding:1.2rem;border-top:2px solid rgba(179,157,219,0.5);background:rgba(179,157,219,0.04);">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.12rem;letter-spacing:0.3em;color:#b39ddb;margin-bottom:0.5rem;">③ 형식 · Format</div>
+        <p style="font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:clamp(1.27rem, 1.8vw, 1.46rem);color:rgba(255,255,255,0.92);line-height:1.8;">출력 형태를 지정하면 바로 쓸 수 있는 결과물이 나옵니다.<br><span style="color:rgba(255,255,255,0.95);">"표로 만들어줘"</span></p>
+      </div>
+
+    </div>
+
+    <div style="padding:0.9rem 2rem;border:1px solid rgba(201,168,76,0.15);background:rgba(201,168,76,0.03);">
+      <p style="font-family:'Noto Serif KR',serif;font-weight:400;font-size:clamp(1.46rem, 2.4vw, 1.79rem);color:rgba(255,255,255,0.9);line-height:1.9;">
+        프롬프트는 AI에게 보내는 <strong style="color:var(--white)">명령서이자 설계도</strong>입니다
+      </p>
+    </div>
+
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════
