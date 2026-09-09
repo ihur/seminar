@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 이야기 2차 — 이번엔 직접 써봅니다</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+
+        :root {
+            --bg: #f4f1eb;
+            --bg-card: #ffffff;
+            --accent1: #2563eb;
+            --accent2: #059669;
+            --accent3: #d97706;
+            --accent-red: #dc2626;
+            --accent-warm: #ea580c;
+            --text-main: #1a1a2e;
+            --text-dim: #4b5563;
+            --border: #ddd8cc;
+            --shadow: 0 4px 24px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { font-size: 22px; }
+
+        body {
+            font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* 스크롤 가능한 슬라이드 래퍼 */
+        .slide-viewport {
+            position: fixed;
+            inset: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+        .slide-viewport::-webkit-scrollbar { width: 6px; }
+        .slide-viewport::-webkit-scrollbar-track { background: transparent; }
+        .slide-viewport::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        /* 배경 따뜻한 텍스처 */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 70% 60% at 10% 10%, rgba(37,99,235,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 90% 90%, rgba(5,150,105,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 40% at 50% 0%, rgba(217,119,6,0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            transition: width 0.4s ease;
+            z-index: 200;
+        }
+
+        .slide {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 72px 80px 80px;
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content {
+            max-width: 1060px;
+            width: 100%;
+        }
+
+        /* 슬라이드 라벨 */
+        .slide-label {
+            font-size: 0.72em;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            color: var(--accent1);
+            margin-bottom: 16px;
+            display: inline-block;
+            background: rgba(37,99,235,0.08);
+            padding: 6px 18px;
+            border-radius: 100px;
+        }
+
+        h1 {
+            font-size: 3.4em;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 22px;
+            color: var(--text-main);
+        }
+        h1 .blue { color: var(--accent1); }
+
+        h2 {
+            font-size: 2.3em;
+            font-weight: 900;
+            line-height: 1.3;
+            margin-bottom: 28px;
+            color: var(--text-main);
+        }
+        h2 .blue  { color: var(--accent1); }
+        h2 .green { color: var(--accent2); }
+        h2 .orange{ color: var(--accent3); }
+        h2 .red   { color: var(--accent-red); }
+
+        h3 {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        p.lead {
+            font-size: 1.25em;
+            line-height: 1.9;
+            color: var(--text-dim);
+            margin-bottom: 18px;
+        }
+
+        /* 그리드 */
+        .grid { display: grid; gap: 18px; margin-top: 10px; }
+        .col2 { grid-template-columns: 1fr 1fr; }
+        .col3 { grid-template-columns: 1fr 1fr 1fr; }
+
+        /* 카드 */
+        .card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 26px 24px;
+            box-shadow: var(--shadow);
+            transition: transform 0.22s;
+        }
+        .card:hover { transform: translateY(-3px); }
+        .card .icon { font-size: 2.4em; margin-bottom: 12px; display: block; }
+        .card h3 { font-size: 1.1em; margin-bottom: 8px; }
+        .card p, .card li {
+            font-size: 1em;
+            line-height: 1.8;
+            color: var(--text-dim);
+        }
+        .card ul { padding-left: 18px; }
+        .card.blue   { border-top: 5px solid var(--accent1); }
+        .card.green  { border-top: 5px solid var(--accent2); }
+        .card.orange { border-top: 5px solid var(--accent3); }
+        .card.red    { border-top: 5px solid var(--accent-red); }
+        .card.warm   { border-top: 5px solid var(--accent-warm); }
+
+        /* 강조 박스 */
+        .highlight-box {
+            background: rgba(37,99,235,0.06);
+            border: 2px solid rgba(37,99,235,0.18);
+            border-radius: 18px;
+            padding: 24px 30px;
+            margin-top: 20px;
+            font-size: 1.1em;
+            line-height: 1.9;
+            color: var(--text-main);
+        }
+        .highlight-box.warning {
+            background: rgba(220,38,38,0.05);
+            border-color: rgba(220,38,38,0.22);
+        }
+        .highlight-box.gold {
+            background: rgba(217,119,6,0.06);
+            border-color: rgba(217,119,6,0.22);
+        }
+        .highlight-box.green {
+            background: rgba(5,150,105,0.06);
+            border-color: rgba(5,150,105,0.22);
+        }
+
+        /* 실습 박스 */
+        .practice-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #ecfdf5 100%);
+            border: 3px solid var(--accent1);
+            border-radius: 20px;
+            padding: 28px 32px;
+            margin-top: 18px;
+        }
+        .practice-box h3 {
+            font-size: 1.3em;
+            color: var(--accent1);
+            margin-bottom: 16px;
+        }
+        .practice-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+        }
+        .practice-item:last-child { margin-bottom: 0; }
+        .practice-num {
+            min-width: 42px;
+            height: 42px;
+            background: var(--accent1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.1em;
+            color: white;
+            flex-shrink: 0;
+        }
+        .practice-item p {
+            font-size: 1.05em;
+            line-height: 1.7;
+            color: var(--text-dim);
+        }
+        .practice-item p strong { color: var(--text-main); font-size: 1.05em; }
+
+        /* 대화 버블 */
+        .chat-wrap { display: flex; flex-direction: column; gap: 14px; margin-top: 10px; }
+        .bubble {
+            max-width: 82%;
+            padding: 16px 22px;
+            border-radius: 18px;
+            font-size: 1em;
+            line-height: 1.75;
+            border: 2px solid transparent;
+        }
+        .bubble.user {
+            align-self: flex-end;
+            background: rgba(37,99,235,0.08);
+            border-color: rgba(37,99,235,0.2);
+            text-align: right;
+        }
+        .bubble.ai {
+            align-self: flex-start;
+            background: white;
+            border-color: var(--border);
+        }
+        .bubble.ai.wrong {
+            border-color: rgba(220,38,38,0.3);
+            background: rgba(220,38,38,0.04);
+        }
+        .bubble-label {
+            font-size: 0.75em;
+            font-weight: 700;
+            opacity: 0.55;
+            margin-bottom: 5px;
+        }
+
+        /* 스텝 리스트 */
+        .step-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 22px;
+            box-shadow: var(--shadow);
+        }
+        .step-num {
+            min-width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--accent1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.1em;
+            color: white;
+            flex-shrink: 0;
+        }
+        .step-num.red { background: var(--accent-red); }
+        .step-item p { font-size: 1em; line-height: 1.75; color: var(--text-dim); }
+        .step-item p strong { color: var(--text-main); }
+
+        /* 요약 라인 (한 장 요약용) */
+        .sum-line {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 22px;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+            line-height: 1.6;
+            color: var(--text-main);
+            box-shadow: var(--shadow);
+        }
+        .sum-line .q { font-weight: 700; }
+
+        /* 강사 소개 */
+        .speaker-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 56px;
+            align-items: center;
+            width: 100%;
+            max-width: 1060px;
+        }
+
+        /* VS 비교 */
+        .vs-wrap {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 18px;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .vs-badge { font-size: 1.8em; font-weight: 900; color: var(--accent3); text-align: center; }
+
+        /* 태그 */
+        .tag {
+            display: inline-block;
+            font-size: 0.75em;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 100px;
+            margin-bottom: 10px;
+        }
+        .tag.red { background: rgba(220,38,38,0.08); color: var(--accent-red); }
+        .tag.gold { background: rgba(217,119,6,0.08); color: var(--accent3); }
+
+        /* 네비게이션 */
+        .nav {
+            position: fixed;
+            bottom: 28px;
+            right: 36px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 100;
+        }
+        .nav-btn {
+            background: white;
+            border: 2px solid var(--border);
+            color: var(--text-main);
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.22s;
+            box-shadow: var(--shadow);
+        }
+        .nav-btn:hover {
+            background: var(--accent1);
+            color: white;
+            border-color: var(--accent1);
+            transform: scale(1.08);
+        }
+        .nav-counter {
+            font-size: 0.75em;
+            font-weight: 700;
+            color: var(--text-dim);
+            min-width: 48px;
+            text-align: center;
+        }
+
+        @media (max-width: 800px) {
+            html { font-size: 17px; }
+            .slide { padding: 28px 20px; }
+            h1 { font-size: 2.8em; }
+            h2 { font-size: 2em; }
+            .col2, .col3 { grid-template-columns: 1fr; }
+            .vs-wrap { grid-template-columns: 1fr; }
+            .speaker-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress" style="width: 10%;"></div>
+<div class="slide-viewport" id="viewport">
+
+<!-- ══════════════════════════════════
+     슬라이드 1 — 타이틀
+═══════════════════════════════════ -->
+<div class="slide active" id="s1">
+    <div class="content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+        <span class="slide-label">AI 특강 2차 · 실습편 · 2026</span>
+        <h1 style="margin-bottom:20px;">
+            이번엔<br>
+            <span class="blue">직접 써봅니다</span>
+        </h1>
+        <p class="lead" style="max-width:760px; text-align:center; margin-bottom:32px;">
+            지난주엔 'AI가 무엇인지' 이야기 나눴죠.<br>
+            오늘은 스마트폰으로 <strong style="color:var(--text-main);">직접</strong> 해봅니다.<br>
+            앱은 딱 하나 — <strong style="color:var(--accent1);">Gemini(제미나이)</strong> 하나면 됩니다.
+        </p>
+        <div style="display:flex; gap:18px; justify-content:center; flex-wrap:wrap; width:100%; max-width:900px;">
+            <div class="card" style="flex:1; min-width:200px; text-align:center;">
+                <span class="icon">🎤</span>
+                <h3>말로 물어보기</h3>
+                <p>타이핑 안 해도 됩니다. 말만 하면 돼요</p>
+            </div>
+            <div class="card" style="flex:1; min-width:200px; text-align:center;">
+                <span class="icon">✍️</span>
+                <h3>문자 써주기</h3>
+                <p>안부·감사 문자, AI가 대신 써줍니다</p>
+            </div>
+            <div class="card" style="flex:1; min-width:200px; text-align:center;">
+                <span class="icon">🎨</span>
+                <h3>동화·그림 만들기</h3>
+                <p>손주에게 줄 동화와 그림을 뚝딱</p>
+            </div>
+        </div>
+        <div style="margin-top:32px; padding:18px 32px; background:rgba(37,99,235,0.07); border-radius:14px; font-size:1em; color:var(--text-dim);">
+            ✋ <strong style="color:var(--text-main);">틀려도 괜찮아요. 오늘은 '되는 것'만 골라 왔습니다 😊</strong>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 2 — 지난주 → 오늘 (브릿지)
+═══════════════════════════════════ -->
+<div class="slide" id="s2">
+    <div class="content">
+        <div class="slide-label">다시 만나 반갑습니다</div>
+        <h2>지난주엔 '알았고',<br>오늘은 <span class="blue">'해봅니다'</span></h2>
+        <div class="vs-wrap">
+            <div class="card blue">
+                <span class="icon">📖</span>
+                <h3>지난주 (1차)</h3>
+                <p style="line-height:1.9;">
+                    · AI는 <strong>질문하면 답해주는 도구</strong><br>
+                    · 가끔 <strong>틀리기도</strong> 한다<br>
+                    · 그래서 <strong>조심</strong>할 것
+                </p>
+            </div>
+            <div class="vs-badge">▶</div>
+            <div class="card green">
+                <span class="icon">🙌</span>
+                <h3>오늘 (2차)</h3>
+                <p style="line-height:1.9;">
+                    · <strong>말로 물어보기</strong><br>
+                    · <strong>문자 대신 써달라기</strong><br>
+                    · <strong>동화·그림 만들기</strong>
+                </p>
+            </div>
+        </div>
+        <div class="highlight-box green" style="text-align:center; margin-top:24px;">
+            💡 <strong>오늘은 앱 하나만 씁니다 — Gemini(제미나이).</strong><br>
+            이 앱 저 앱 옮겨 다니지 않아요. 하나만 익히면 됩니다.
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 3 — 시작하기 (가입 없이)
+═══════════════════════════════════ -->
+<div class="slide" id="s3">
+    <div class="content">
+        <div class="slide-label">시작 전에 · 딱 1분</div>
+        <h2>Gemini <span class="green">열기</span> — 가입 안 해도 됩니다</h2>
+        <p class="lead">폰에 이미 구글 계정이 있어서, 따로 회원가입할 필요가 없어요.</p>
+
+        <div class="step-list">
+            <div class="step-item">
+                <div class="step-num green" style="background:var(--accent2);">1</div>
+                <p><strong>안드로이드 폰</strong>: 'Gemini' 앱이 대부분 이미 깔려 있어요. 없으면 <strong>플레이스토어</strong>에서 'Gemini' 검색해서 설치.<br>
+                <strong>아이폰</strong>: <strong>앱스토어</strong>에서 'Gemini' 검색해서 설치.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-num green" style="background:var(--accent2);">2</div>
+                <p>앱을 열면 <strong>바로 시작</strong>됩니다. (폰에 로그인된 구글 계정으로 자동 연결 — 가입 X)</p>
+            </div>
+            <div class="step-item">
+                <div class="step-num green" style="background:var(--accent2);">3</div>
+                <p>앱이 안 열리면 인터넷 주소창에 <strong style="color:var(--accent2); font-size:1.05em;">gemini.google.com</strong> 을 입력해도 돼요.</p>
+            </div>
+        </div>
+
+        <div class="grid col2" style="margin-top:18px;">
+            <div class="highlight-box gold" style="margin-top:0; text-align:center;">
+                💰 <strong>무료로 충분합니다.</strong><br>
+                '유료로 업그레이드' 버튼은 <strong>누르지 마세요.</strong>
+            </div>
+            <div class="highlight-box" style="margin-top:0; text-align:center;">
+                🔎 <strong>글씨가 작으면?</strong><br>
+                폰 <strong>[설정 → 화면 → 글자 크기]</strong> 에서 크게 키우세요.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 4 — 실습 ① 말로 물어보기 (음성 먼저)
+═══════════════════════════════════ -->
+<div class="slide" id="s4">
+    <div class="content">
+        <div class="slide-label" style="background:rgba(5,150,105,0.1); color:var(--accent2);">✅ 실습 첫 번째</div>
+        <h2>타이핑 말고 <span class="green">말로 물어보기</span> 🎤</h2>
+        <p class="lead">오늘의 핵심! <strong>타이핑 안 해도 됩니다.</strong> 말만 하면 돼요.</p>
+
+        <div class="grid col2" style="margin-top:8px;">
+            <div class="practice-box">
+                <h3>🎙️ 이렇게 하세요</h3>
+                <div class="practice-item">
+                    <div class="practice-num" style="background:var(--accent2);">1</div>
+                    <p>Gemini 화면 아래 <strong>마이크 버튼</strong>을 누릅니다</p>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-num" style="background:var(--accent2);">2</div>
+                    <p><strong>말로 질문</strong>하면 끝! 손으로 안 써도 돼요</p>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-num" style="background:var(--accent2);">3</div>
+                    <p>답이 화면에 나오고, <strong>소리로 읽어주기</strong>도 합니다</p>
+                </div>
+            </div>
+            <div>
+                <p style="font-size:0.88em; color:var(--text-dim); margin-bottom:12px;">🗣️ 이렇게 말해보세요</p>
+                <div class="grid col2" style="gap:12px;">
+                    <div class="card" style="text-align:center; padding:18px;">
+                        <span class="icon" style="font-size:1.8em;">☁️</span>
+                        <h3 style="font-size:0.95em;">"오늘 날씨 어때?"</h3>
+                    </div>
+                    <div class="card" style="text-align:center; padding:18px;">
+                        <span class="icon" style="font-size:1.8em;">🗞️</span>
+                        <h3 style="font-size:0.95em;">"오늘 주요 뉴스 알려줘"</h3>
+                    </div>
+                    <div class="card" style="text-align:center; padding:18px;">
+                        <span class="icon" style="font-size:1.8em;">🍲</span>
+                        <h3 style="font-size:0.95em;">"된장찌개 끓이는 법 알려줘"</h3>
+                    </div>
+                    <div class="card" style="text-align:center; padding:18px;">
+                        <span class="icon" style="font-size:1.8em;">💪</span>
+                        <h3 style="font-size:0.95em;">"허리 아플 때 운동 알려줘"</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-box warning" style="text-align:center;">
+            ⚠️ <strong>건강·약에 대한 답은 '참고용'입니다.</strong>
+            실제 복용·치료는 반드시 <strong>의사·약사</strong>와 상의하세요.
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 5 — 실습 ② 문자 써주기
+═══════════════════════════════════ -->
+<div class="slide" id="s5">
+    <div class="content">
+        <div class="slide-label" style="background:rgba(5,150,105,0.1); color:var(--accent2);">✅ 실습 두 번째</div>
+        <h2>문자·카톡 <span class="green">대신 써달라고 하기</span> ✍️</h2>
+        <p class="lead">목표: <strong>글쓰기 부담 없이 멋진 문자 보내기</strong></p>
+
+        <div class="grid col2" style="margin-top:8px;">
+            <div>
+                <div class="practice-box" style="height:100%;">
+                    <h3 style="color:var(--accent2);">💬 이렇게 말하거나 써보세요</h3>
+                    <div class="practice-item">
+                        <div class="practice-num" style="background:var(--accent2);">👉</div>
+                        <p><strong>"친구에게 안부 문자 써줘"</strong></p>
+                    </div>
+                    <div class="practice-item">
+                        <div class="practice-num" style="background:var(--accent2);">👉</div>
+                        <p><strong>"감사 인사 메시지 만들어줘"</strong></p>
+                    </div>
+                    <div class="practice-item">
+                        <div class="practice-num" style="background:var(--accent2);">👉</div>
+                        <p><strong>"미안하지만 약속 미뤄달라고 정중하게 써줘"</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-wrap">
+                <p style="font-size:0.8em; color:var(--text-dim); margin-bottom:4px;">💡 이런 식으로 대화가 됩니다</p>
+                <div class="bubble user">
+                    <div class="bubble-label">내가 말함 / 입력</div>
+                    친구한테 오랜만에 안부 묻는 문자 써줘
+                </div>
+                <div class="bubble ai">
+                    <div class="bubble-label">Gemini 답변 🤖</div>
+                    안녕! 오랜만이야 😊<br>
+                    요즘 어떻게 지내? 잘 지내고 있는지<br>
+                    갑자기 네 생각이 나서 연락해봤어.<br>
+                    조만간 시간 되면 같이 밥 한번 먹자!
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-box green" style="text-align:center;">
+            ✨ 마음에 안 들면 <strong>"더 짧게"</strong>, <strong>"더 정중하게"</strong> 라고 다시 말하면 고쳐줍니다!
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 6 — 실습 ③ 동화 + 그림
+═══════════════════════════════════ -->
+<div class="slide" id="s6">
+    <div class="content">
+        <div class="slide-label" style="background:rgba(217,119,6,0.1); color:var(--accent3);">✅ 실습 세 번째</div>
+        <h2>손주에게 <span class="orange">동화와 그림 선물하기</span> 👶🎨</h2>
+        <p class="lead">Gemini는 <strong>글도 쓰고 그림도 그려줍니다</strong> — 한 곳에서 다 돼요.</p>
+
+        <div class="grid col2" style="margin-top:8px;">
+            <div>
+                <div class="practice-box" style="border-color: var(--accent3); background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);">
+                    <h3 style="color:var(--accent3);">📖 동화 만들기</h3>
+                    <div class="practice-item">
+                        <div class="practice-num" style="background:var(--accent3);">👉</div>
+                        <p><strong>"손주 동화 만들어줘. 주인공 이름은 민준이야"</strong></p>
+                    </div>
+                    <div class="practice-item">
+                        <div class="practice-num" style="background:var(--accent3);">👉</div>
+                        <p><strong>"7살 아이에게 우주를 쉽게 설명해줘"</strong></p>
+                    </div>
+                </div>
+                <div class="practice-box" style="border-color: var(--accent3); background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); margin-top:14px;">
+                    <h3 style="color:var(--accent3);">🎨 그림 만들기</h3>
+                    <div class="practice-item">
+                        <div class="practice-num" style="background:var(--accent3);">👉</div>
+                        <p><strong>"벚꽃 핀 공원을 산책하는 할머니 그림 그려줘"</strong></p>
+                    </div>
+                    <div class="practice-item">
+                        <div class="practice-num" style="background:var(--accent3);">👉</div>
+                        <p><strong>"손주 생일 카드 그림, 케이크와 풍선 가득"</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="bubble ai" style="margin-top:26px;">
+                    <div class="bubble-label">동화 답변 예시 🤖</div>
+                    <strong>민준이의 우주 탐험</strong> 🚀<br><br>
+                    어느 날 민준이는 작은 로켓을 탔어요.<br>
+                    하늘 위 별들이 "안녕!" 하고 인사했죠.<br>
+                    달 아저씨가 말했어요, "용감한 민준이,<br>
+                    우주는 네 것이야!" ✨
+                </div>
+                <div class="highlight-box gold" style="margin-top:14px; text-align:center;">
+                    🌟 <strong>"내가 이런 걸 만들었다고?"</strong><br>
+                    손주 이름을 넣으면 세상에 하나뿐인 선물이 됩니다 ❤️
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 7 — 안 될 때 대처법
+═══════════════════════════════════ -->
+<div class="slide" id="s7">
+    <div class="content">
+        <div class="slide-label" style="background:rgba(217,119,6,0.1); color:var(--accent3);">이럴 땐 이렇게</div>
+        <h2>잘 안 될 때 <span class="orange">당황하지 마세요</span></h2>
+        <p class="lead" style="margin-bottom:16px;">누구나 겪는 일이에요. 아래대로만 하면 대부분 해결됩니다.</p>
+
+        <div class="grid col2">
+            <div class="card orange">
+                <span class="icon">📶</span>
+                <h3>답이 안 나와요</h3>
+                <p>인터넷(와이파이·데이터) 연결을 확인하세요. 그래도 안 되면 <strong>앱을 껐다가 다시</strong> 켜보세요.</p>
+            </div>
+            <div class="card orange">
+                <span class="icon">🤔</span>
+                <h3>이상한 답을 해요</h3>
+                <p><strong>"다시 알려줘"</strong> 라고 하거나, 질문을 조금 다르게 해보세요. AI도 가끔 틀립니다.</p>
+            </div>
+            <div class="card orange">
+                <span class="icon">🎤</span>
+                <h3>음성·그림이 안 돼요</h3>
+                <p>앱을 <strong>최신으로 업데이트</strong>하고, 마이크 권한을 <strong>'허용'</strong>으로 켜주세요.</p>
+            </div>
+            <div class="card orange">
+                <span class="icon">🔎</span>
+                <h3>글씨가 너무 작아요</h3>
+                <p>폰 <strong>[설정 → 화면 → 글자 크기]</strong>에서 키우세요. 눈이 편해집니다.</p>
+            </div>
+        </div>
+
+        <div class="highlight-box green" style="text-align:center;">
+            🙋 <strong>혼자 끙끙대지 마세요.</strong> 막히면 옆 사람이나 강사에게 손을 드세요!
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 8 — 주의사항 (간소화)
+═══════════════════════════════════ -->
+<div class="slide" id="s8">
+    <div class="content">
+        <div class="slide-label" style="background:rgba(220,38,38,0.08); color:var(--accent-red);">조심하세요</div>
+        <h2>이것만 <span class="red">주의하면 됩니다</span></h2>
+        <p class="lead" style="margin-bottom:16px;">복잡하지 않아요. 아래 네 가지만 기억하세요.</p>
+
+        <div class="grid col2">
+            <div class="card red">
+                <span class="icon">🤥</span>
+                <h3>AI가 가끔 틀린 말을 합니다</h3>
+                <p>AI는 자신 있게 대답하지만 틀릴 때도 있어요.<br>
+                <strong>병원 이름·약 이름·전화번호</strong>는 꼭 다시 확인하세요.</p>
+            </div>
+            <div class="card red">
+                <span class="icon">📞</span>
+                <h3>딥페이크·보이스피싱 조심</h3>
+                <p>AI로 가족 목소리도 흉내낼 수 있어요.<br>
+                <strong>"돈 보내줘"</strong> 전화는 반드시 <strong>직접 다시 전화</strong>해 확인!</p>
+            </div>
+            <div class="card orange">
+                <span class="icon">🔒</span>
+                <h3>개인정보는 입력 금지</h3>
+                <p><strong>주민번호·계좌번호·비밀번호</strong>는<br>절대 입력하지 마세요.</p>
+            </div>
+            <div class="card orange">
+                <span class="icon">💊</span>
+                <h3>의료·법률·돈은 전문가에게</h3>
+                <p>AI 말은 <strong>참고만</strong> 하고,<br>중요한 결정은 의사·약사·전문가에게.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 9 — 한 장 요약 (사진 찍기)
+═══════════════════════════════════ -->
+<div class="slide" id="s9">
+    <div class="content">
+        <div class="slide-label" style="background:rgba(217,119,6,0.1); color:var(--accent3);">📸 이 화면을 사진으로 찍어두세요</div>
+        <h2>집에서도 <span class="blue">이대로 따라하면 됩니다</span></h2>
+
+        <div class="grid col2" style="margin-top:8px;">
+            <div>
+                <div class="highlight-box green" style="margin-top:0;">
+                    📱 <strong>여는 법</strong><br>
+                    ① Gemini 앱 열기<br>
+                    ② 또는 인터넷에 <strong>gemini.google.com</strong>
+                </div>
+                <p style="font-size:0.9em; color:var(--text-dim); margin:16px 0 10px;">🗣️ 이렇게 말하거나 쓰세요</p>
+                <div class="sum-line"><span>☁️</span><span class="q">"오늘 날씨 어때?"</span></div>
+                <div class="sum-line"><span>✍️</span><span class="q">"감사 문자 써줘"</span></div>
+                <div class="sum-line"><span>💪</span><span class="q">"허리 아플 때 운동 알려줘"</span></div>
+                <div class="sum-line"><span>📖</span><span class="q">"민준이 주인공 동화 만들어줘"</span></div>
+                <div class="sum-line"><span>🎨</span><span class="q">"벚꽃 공원 산책하는 할머니 그림 그려줘"</span></div>
+            </div>
+            <div>
+                <div class="highlight-box warning" style="margin-top:0;">
+                    ⚠️ <strong>꼭 기억하세요</strong><br><br>
+                    ✅ 건강·돈 얘기는 <strong>참고만</strong><br><br>
+                    ✅ 주민번호·계좌번호 <strong>입력 금지</strong><br><br>
+                    ✅ <strong>'유료' 버튼은 누르지 않기</strong><br><br>
+                    ✅ "돈 보내줘" 전화는 <strong>직접 확인</strong>
+                </div>
+                <div class="highlight-box gold" style="text-align:center;">
+                    💛 잊어버려도 괜찮아요.<br>
+                    <strong>이 사진만 보고 또 하면 됩니다.</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 10 — 마무리
+═══════════════════════════════════ -->
+<div class="slide" id="s10">
+    <div class="content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+        <div class="slide-label">오늘을 마치며</div>
+        <h2 style="margin-bottom:28px; line-height:1.6;">
+            잘 쓰는 사람이 아니라<br>
+            <span class="blue">"써본 사람"이 이기는 시대입니다.</span>
+        </h2>
+        <p class="lead" style="max-width:680px; margin-bottom:32px;">
+            오늘 한 번이라도 직접 해보셨다면<br>
+            이미 시작하신 겁니다. 틀려도 괜찮아요. 😊
+        </p>
+        <div class="grid col3" style="width:100%; text-align:left;">
+            <div class="card green">
+                <span class="icon">✅</span>
+                <h3>써보세요</h3>
+                <p>날씨·문자·동화·그림 — 오늘 배운 것 집에서 바로 써봐요</p>
+            </div>
+            <div class="card blue">
+                <span class="icon">🔍</span>
+                <h3>확인하세요</h3>
+                <p>중요한 정보는 AI 말만 믿지 말고 한 번 더 확인하는 습관</p>
+            </div>
+            <div class="card orange">
+                <span class="icon">🛡️</span>
+                <h3>조심하세요</h3>
+                <p>개인정보 입력 금지, 보이스피싱 의심, 가짜 정보 주의</p>
+            </div>
+        </div>
+        <div class="highlight-box green" style="margin-top:24px; font-size:1.1em; max-width:700px;">
+            🌟 <strong>AI는 도구입니다.</strong><br>
+            자녀에게 물어보지 않아도 됩니다. 이제 여러분 손 안에 비서가 생겼습니다.
+        </div>
+    </div>
+</div>
+
+<!-- ─── 네비게이션 ─── -->
+<!-- ══════════════════════════════════
+     슬라이드 11 — 분별력 마무리 메시지 (1차 13p)
+═══════════════════════════════════ -->
+<div class="slide" id="s11">
+    <div class="content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+        <div class="slide-label">마무리 메시지</div>
+        <h2>AI 시대를 살아가는<br><span class="blue">가장 올바른 분별</span></h2>
+        <p class="lead" style="max-width:760px;">
+            "AI가 참 대단하다"는 생각도 드셨겠지만,<br>
+            한편으로는 꼭 기억해야 할 것이 있습니다.
+        </p>
+        <div class="highlight-box" style="max-width:720px; text-align:center; font-size:1.3em;">
+            🧭 <strong>"무엇이 진짜인지 분별할 수 있는 사람"</strong>
+        </div>
+        <div class="highlight-box green" style="max-width:760px; text-align:center;">
+            아무리 기술이 발전해도 AI와의 소통보다 더 중요한 것은 결국<br>
+            <strong>사람과 사람 사이의 소통, 그리고 나 자신과의 진솔한 대화</strong>라고 생각합니다.
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 12 — 밸러스온문화센터 프로그램 안내 (1차 14p)
+═══════════════════════════════════ -->
+<div class="slide" id="s12">
+    <div class="content">
+        <div class="slide-label" style="background:rgba(217,119,6,0.1); color:var(--accent3);">다음 프로그램 · BALANCE ON</div>
+        <h2>밸러스온문화센터 <span class="orange">퍼스널 패키지</span></h2>
+        <div class="grid col2" style="margin-top:8px;">
+            <div class="practice-box" style="border-color:var(--accent3); background:linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%);">
+                <div style="font-weight:700; letter-spacing:2px; color:var(--accent3); margin-bottom:10px; font-size:0.8em;">RECOMMENDED</div>
+                <h3 style="font-size:1.4em; color:var(--accent3); margin-bottom:14px;">퍼스널 패키지 과정</h3>
+                <p style="font-size:1.05em; line-height:1.9; color:var(--text-dim);">
+                    단순히 배우는 시간이 아니라 <strong style="color:var(--text-main);">나 자신을 깊이 이해하고, 내 안의 가능성과 방향성을 발견하며</strong> 한 단계 성장해가는 시간이 되실 거예요.
+                </p>
+                <div style="display:inline-block; margin-top:18px; background:var(--accent3); color:white; font-weight:700; padding:8px 18px; border-radius:100px; font-size:0.9em;">다음 주 시작되는 특별 프로그램</div>
+            </div>
+            <div class="grid" style="gap:14px;">
+                <div class="card orange" style="text-align:center;"><span class="icon">🧭</span><h3>나를 깊이 이해하기</h3></div>
+                <div class="card orange" style="text-align:center;"><span class="icon">🌱</span><h3>내 안의 가능성 발견</h3></div>
+                <div class="card orange" style="text-align:center;"><span class="icon">🚀</span><h3>한 단계 성장하는 시간</h3></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</div><!-- /slide-viewport -->
+
+<div class="nav">
+    <button class="nav-btn" onclick="go(-1)">◀</button>
+    <span class="nav-counter" id="counter">1 / 12</span>
+    <button class="nav-btn" onclick="go(1)">▶</button>
+</div>
+
+<script>
+    const slides   = document.querySelectorAll('.slide');
+    const viewport = document.getElementById('viewport');
+    const total    = slides.length;
+    let cur = 0;
+
+    function show(n) {
+        slides[cur].classList.remove('active');
+        cur = (n + total) % total;
+        slides[cur].classList.add('active');
+        document.getElementById('counter').textContent = `${cur + 1} / ${total}`;
+        document.getElementById('progress').style.width = `${((cur + 1) / total) * 100}%`;
+        viewport.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function go(dir) { show(cur + dir); }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === ' ') go(1);
+        else if (e.key === 'ArrowLeft') go(-1);
+    });
+
+    let tx = 0;
+    document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+    document.addEventListener('touchend', e => {
+        const d = tx - e.changedTouches[0].clientX;
+        if (Math.abs(d) > 50) go(d > 0 ? 1 : -1);
+    });
+
+    document.getElementById('counter').textContent = `1 / ${total}`;
+    document.getElementById('progress').style.width = `${(1 / total) * 100}%`;
+</script>
+
+</body></html>
