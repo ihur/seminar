@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 엔진룸 투어 1주차 — AI는 어떻게 생각하는가</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+
+        :root {
+            --bg: #f4f1eb;
+            --bg-card: #ffffff;
+            --accent1: #2563eb;
+            --accent2: #059669;
+            --accent3: #d97706;
+            --accent-red: #dc2626;
+            --accent-warm: #ea580c;
+            --text-main: #1a1a2e;
+            --text-dim: #4b5563;
+            --border: #ddd8cc;
+            --shadow: 0 4px 24px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { font-size: 26px; }
+
+        body {
+            font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* 스크롤 가능한 슬라이드 래퍼 */
+        .slide-viewport {
+            position: fixed;
+            inset: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+        .slide-viewport::-webkit-scrollbar { width: 6px; }
+        .slide-viewport::-webkit-scrollbar-track { background: transparent; }
+        .slide-viewport::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        /* 배경 따뜻한 텍스처 */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 70% 60% at 10% 10%, rgba(37,99,235,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 90% 90%, rgba(5,150,105,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 40% at 50% 0%, rgba(217,119,6,0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            transition: width 0.4s ease;
+            z-index: 200;
+        }
+
+        .slide {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 72px 80px 80px;
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content {
+            max-width: 1060px;
+            width: 100%;
+        }
+
+        /* 슬라이드 라벨 */
+        .slide-label {
+            font-size: 0.72em;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            color: var(--accent1);
+            margin-bottom: 16px;
+            display: inline-block;
+            background: rgba(37,99,235,0.08);
+            padding: 6px 18px;
+            border-radius: 100px;
+        }
+
+        h1 {
+            font-size: 3.4em;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 22px;
+            color: var(--text-main);
+        }
+        h1 .blue { color: var(--accent1); }
+
+        h2 {
+            font-size: 2.3em;
+            font-weight: 900;
+            line-height: 1.3;
+            margin-bottom: 28px;
+            color: var(--text-main);
+        }
+        h2 .blue  { color: var(--accent1); }
+        h2 .green { color: var(--accent2); }
+        h2 .orange{ color: var(--accent3); }
+        h2 .red   { color: var(--accent-red); }
+
+        h3 {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        p.lead {
+            font-size: 1.25em;
+            line-height: 1.9;
+            color: var(--text-dim);
+            margin-bottom: 18px;
+        }
+
+        /* 그리드 */
+        .grid { display: grid; gap: 18px; margin-top: 10px; }
+        .col2 { grid-template-columns: 1fr 1fr; }
+        .col3 { grid-template-columns: 1fr 1fr 1fr; }
+
+        /* 카드 */
+        .card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 26px 24px;
+            box-shadow: var(--shadow);
+            transition: transform 0.22s;
+        }
+        .card:hover { transform: translateY(-3px); }
+        .card .icon { font-size: 2.4em; margin-bottom: 12px; display: block; }
+        .card h3 { font-size: 1.1em; margin-bottom: 8px; }
+        .card p, .card li {
+            font-size: 1em;
+            line-height: 1.8;
+            color: var(--text-dim);
+        }
+        .card ul { padding-left: 18px; }
+        .card.blue   { border-top: 5px solid var(--accent1); }
+        .card.green  { border-top: 5px solid var(--accent2); }
+        .card.orange { border-top: 5px solid var(--accent3); }
+        .card.red    { border-top: 5px solid var(--accent-red); }
+        .card.warm   { border-top: 5px solid var(--accent-warm); }
+
+        /* 강조 박스 */
+        .highlight-box {
+            background: rgba(37,99,235,0.06);
+            border: 2px solid rgba(37,99,235,0.18);
+            border-radius: 18px;
+            padding: 24px 30px;
+            margin-top: 20px;
+            font-size: 1.1em;
+            line-height: 1.9;
+            color: var(--text-main);
+        }
+        .highlight-box.warning {
+            background: rgba(220,38,38,0.05);
+            border-color: rgba(220,38,38,0.22);
+        }
+        .highlight-box.gold {
+            background: rgba(217,119,6,0.06);
+            border-color: rgba(217,119,6,0.22);
+        }
+        .highlight-box.green {
+            background: rgba(5,150,105,0.06);
+            border-color: rgba(5,150,105,0.22);
+        }
+
+        /* 실습 박스 */
+        .practice-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #ecfdf5 100%);
+            border: 3px solid var(--accent1);
+            border-radius: 20px;
+            padding: 28px 32px;
+            margin-top: 18px;
+        }
+        .practice-box h3 {
+            font-size: 1.3em;
+            color: var(--accent1);
+            margin-bottom: 16px;
+        }
+        .practice-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+        }
+        .practice-item:last-child { margin-bottom: 0; }
+        .practice-num {
+            min-width: 42px;
+            height: 42px;
+            background: var(--accent1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.1em;
+            color: white;
+            flex-shrink: 0;
+        }
+        .practice-item p {
+            font-size: 1.05em;
+            line-height: 1.7;
+            color: var(--text-dim);
+        }
+        .practice-item p strong { color: var(--text-main); font-size: 1.05em; }
+
+        /* 대화 버블 */
+        .chat-wrap { display: flex; flex-direction: column; gap: 14px; margin-top: 10px; }
+        .bubble {
+            max-width: 82%;
+            padding: 16px 22px;
+            border-radius: 18px;
+            font-size: 1em;
+            line-height: 1.75;
+            border: 2px solid transparent;
+        }
+        .bubble.user {
+            align-self: flex-end;
+            background: rgba(37,99,235,0.08);
+            border-color: rgba(37,99,235,0.2);
+            text-align: right;
+        }
+        .bubble.ai {
+            align-self: flex-start;
+            background: white;
+            border-color: var(--border);
+        }
+        .bubble.ai.wrong {
+            border-color: rgba(220,38,38,0.3);
+            background: rgba(220,38,38,0.04);
+        }
+        .bubble-label {
+            font-size: 0.75em;
+            font-weight: 700;
+            opacity: 0.55;
+            margin-bottom: 5px;
+        }
+
+        /* 스텝 리스트 */
+        .step-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 22px;
+            box-shadow: var(--shadow);
+        }
+        .step-num {
+            min-width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--accent1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.1em;
+            color: white;
+            flex-shrink: 0;
+        }
+        .step-num.red { background: var(--accent-red); }
+        .step-item p { font-size: 1em; line-height: 1.75; color: var(--text-dim); }
+        .step-item p strong { color: var(--text-main); }
+
+        /* 요약 라인 (한 장 요약용) */
+        .sum-line {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 22px;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+            line-height: 1.6;
+            color: var(--text-main);
+            box-shadow: var(--shadow);
+        }
+        .sum-line .q { font-weight: 700; }
+
+        /* 강사 소개 */
+        .speaker-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 56px;
+            align-items: center;
+            width: 100%;
+            max-width: 1060px;
+        }
+
+        /* VS 비교 */
+        .vs-wrap {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 18px;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .vs-badge { font-size: 1.8em; font-weight: 900; color: var(--accent3); text-align: center; }
+
+        /* 태그 */
+        .tag {
+            display: inline-block;
+            font-size: 0.75em;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 100px;
+            margin-bottom: 10px;
+        }
+        .tag.red { background: rgba(220,38,38,0.08); color: var(--accent-red); }
+        .tag.gold { background: rgba(217,119,6,0.08); color: var(--accent3); }
+
+        /* 네비게이션 */
+        .nav {
+            position: fixed;
+            bottom: 28px;
+            right: 36px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 100;
+        }
+        .nav-btn {
+            background: white;
+            border: 2px solid var(--border);
+            color: var(--text-main);
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.22s;
+            box-shadow: var(--shadow);
+        }
+        .nav-btn:hover {
+            background: var(--accent1);
+            color: white;
+            border-color: var(--accent1);
+            transform: scale(1.08);
+        }
+        .nav-counter {
+            font-size: 0.75em;
+            font-weight: 700;
+            color: var(--text-dim);
+            min-width: 48px;
+            text-align: center;
+        }
+
+        /* ─── 엔진룸 시리즈 추가 스타일 ─── */
+        .speaker-photo-wrap img {
+            width: 100%; aspect-ratio: 3/4; object-fit: cover;
+            border-radius: 20px; display: block; border: 2px solid var(--border);
+        }
+        .speaker-photo-placeholder {
+            width: 100%; aspect-ratio: 3/4; border-radius: 20px;
+            background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(5,150,105,0.08));
+            border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 5em;
+        }
+        .speaker-eyebrow { font-size: 0.9em; font-weight: 700; letter-spacing: 0.22em; color: var(--accent2); margin-bottom: 10px; }
+        .speaker-name { font-size: 3.2em; font-weight: 900; line-height: 1.1; }
+        .speaker-name-en { font-size: 1.1em; letter-spacing: 0.15em; color: var(--text-dim); margin: 6px 0 18px; }
+        .speaker-divider { width: 50px; height: 3px; background: linear-gradient(90deg, var(--accent1), var(--accent2)); border-radius: 2px; margin-bottom: 22px; }
+        .speaker-roles { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+        .speaker-role-org { font-size: 0.8em; font-weight: 700; letter-spacing: 0.08em; color: var(--accent1); margin-bottom: 3px; }
+        .speaker-role-title { font-size: 1.2em; font-weight: 700; }
+        .speaker-role-title.past { font-weight: 400; color: var(--text-dim); }
+        .speaker-edu { border-top: 2px solid var(--border); padding-top: 16px; font-size: 1.05em; line-height: 1.75; color: var(--text-dim); }
+
+        /* 로드맵 */
+        .route { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 8px; }
+        .route .stop {
+            background: white; border: 2px solid var(--border); border-radius: 16px;
+            padding: 18px 16px; box-shadow: var(--shadow); position: relative;
+        }
+        .route .stop .no { font-size: 0.72em; font-weight: 700; color: var(--accent1); letter-spacing: 0.08em; }
+        .route .stop h3 { font-size: 1em; margin: 6px 0 4px; }
+        .route .stop p { font-size: 0.85em; color: var(--text-dim); line-height: 1.6; }
+        .route.week2 .stop .no { color: var(--accent2); }
+        .route.dim .stop { opacity: 0.55; box-shadow: none; }
+
+        /* 비교 표 */
+        .ctable { width: 100%; border-collapse: separate; border-spacing: 0; background: white; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); border: 2px solid var(--border); }
+        .ctable th, .ctable td { padding: 14px 18px; text-align: left; font-size: 0.98em; line-height: 1.6; border-bottom: 1px solid var(--border); }
+        .ctable th { background: #f8f6f1; font-weight: 700; color: var(--text-dim); font-size: 0.85em; }
+        .ctable tr:last-child td { border-bottom: none; }
+        .ctable td.hl { color: var(--accent1); font-weight: 700; }
+
+        /* 다이얼 */
+        .dial-row { display: flex; gap: 18px; justify-content: center; margin: 8px 0 4px; flex-wrap: wrap; }
+        .dial {
+            width: 86px; height: 86px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #ffffff, #e5e7eb);
+            border: 3px solid #9ca3af; position: relative; box-shadow: var(--shadow);
+        }
+        .dial::after {
+            content: ''; position: absolute; left: 50%; top: 10px; width: 4px; height: 32px;
+            background: var(--accent-red); border-radius: 2px; transform-origin: 50% 33px;
+            transform: translateX(-50%) rotate(var(--r, 0deg));
+            transition: transform 0.8s cubic-bezier(.3,1.6,.5,1);
+        }
+        .slide.active .dial::after { animation: wiggle 2.8s ease-in-out infinite; }
+        @keyframes wiggle {
+            0%,100% { transform: translateX(-50%) rotate(var(--r, 0deg)); }
+            50% { transform: translateX(-50%) rotate(calc(var(--r, 0deg) + 24deg)); }
+        }
+
+        /* 토큰 칩 */
+        .tokens { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .tok {
+            display: inline-flex; flex-direction: column; align-items: center;
+            padding: 8px 14px; border-radius: 10px; font-weight: 700; font-size: 1.15em;
+            border: 2px solid; line-height: 1.3;
+        }
+        .tok small { font-size: 0.55em; font-weight: 500; opacity: 0.75; font-family: ui-monospace, Menlo, monospace; }
+        .tok.c1 { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
+        .tok.c2 { background: #ecfdf5; border-color: #6ee7b7; color: #047857; }
+        .tok.c3 { background: #fffbeb; border-color: #fcd34d; color: #b45309; }
+        .tok.c4 { background: #fef2f2; border-color: #fca5a5; color: #b91c1c; }
+        .tok.c5 { background: #f5f3ff; border-color: #c4b5fd; color: #6d28d9; }
+
+        /* 확률 막대 */
+        .prob { display: flex; flex-direction: column; gap: 10px; }
+        .prob-row { display: grid; grid-template-columns: 120px 1fr 56px; align-items: center; gap: 12px; font-size: 1em; }
+        .prob-row .w { font-weight: 700; text-align: right; }
+        .prob-row .bar { height: 26px; background: #eef0f3; border-radius: 8px; overflow: hidden; }
+        .prob-row .bar i { display: block; height: 100%; width: 0; background: var(--accent1); border-radius: 8px; transition: width 1s ease 0.3s; }
+        .slide.active .prob-row .bar i { width: var(--p); }
+        .prob-row .pct { font-weight: 700; color: var(--text-dim); font-size: 0.9em; }
+        .prob-row.top .w, .prob-row.top .pct { color: var(--accent1); }
+        .prob-row.odd .bar i { background: var(--accent-red); }
+        .prompt-line {
+            font-size: 1.35em; font-weight: 900; background: #1a1a2e; color: white;
+            padding: 16px 22px; border-radius: 14px; margin-bottom: 18px;
+        }
+        .prompt-line .blank { display: inline-block; min-width: 80px; border-bottom: 3px solid #fbbf24; color: #fbbf24; }
+
+        /* 파이프라인 */
+        .pipe { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 10px; align-items: stretch; margin-top: 6px; }
+        .pipe .arrow { display: flex; align-items: center; font-size: 1.8em; color: var(--accent3); font-weight: 900; }
+        .pipe .card .stage { font-size: 0.72em; font-weight: 700; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 4px; }
+        .pipe .card .analogy {
+            margin-top: 12px; padding: 10px 12px; border-radius: 10px;
+            background: #f8f6f1; font-size: 0.9em; line-height: 1.6; color: var(--text-main);
+        }
+
+        /* 문장 속 강조 단어 (어텐션) */
+        .sent { font-size: 1.45em; font-weight: 700; line-height: 2.1; }
+        .sent .focus { background: #1a1a2e; color: white; padding: 2px 12px; border-radius: 8px; }
+        .sent .att { border-radius: 8px; padding: 2px 8px; }
+        .sent .att.strong { background: rgba(37,99,235,0.22); color: #1d4ed8; }
+        .sent .att.mid { background: rgba(37,99,235,0.09); }
+
+        /* 공장 비유 */
+        .factory { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .factory .card .part { font-size: 0.75em; font-weight: 700; color: var(--text-dim); letter-spacing: 0.08em; }
+        .factory .card .big { font-size: 1.35em; font-weight: 900; margin: 4px 0 10px; }
+
+        .demo-tag {
+            display: inline-block; background: #1a1a2e; color: #fbbf24; font-weight: 700;
+            font-size: 0.72em; padding: 6px 16px; border-radius: 100px; margin-bottom: 16px; letter-spacing: 0.1em;
+        }
+        .kicker { font-size: 0.85em; color: var(--text-dim); margin-top: 8px; }
+        svg text { font-family: 'Noto Sans KR', sans-serif; }
+
+        /* ─── 전체 화면 고정 캔버스 (스마트보드용) ─── */
+        body { background: #e9e5dc; }
+        .slide-viewport { overflow: hidden !important; }
+        #stage {
+            position: absolute; left: 50%; top: 50%;
+            width: 1440px; height: 810px;
+            transform-origin: center center;
+            background: var(--bg);
+            overflow: hidden;
+        }
+        #stage .slide {
+            position: absolute; inset: 0;
+            min-height: 0; padding: 22px 22px 30px;
+        }
+        #stage .content { max-width: 100%; transform-origin: center center; }
+        #stage .speaker-layout { max-width: 100%; grid-template-columns: 340px 1fr; }
+        .nav { bottom: 10px; right: 14px; opacity: 0.35; transform: scale(0.8); transform-origin: bottom right; }
+        .nav:hover { opacity: 1; }
+
+        /* ─── 밸런스 온 마무리 ─── */
+        #stage .slide.final {
+            background:
+                radial-gradient(ellipse 60% 70% at 15% 20%, rgba(37,99,235,0.35) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 60% at 90% 90%, rgba(5,150,105,0.28) 0%, transparent 60%),
+                #0f172a;
+            color: #f8fafc;
+        }
+        .final .big-word { font-size: 3.3em; font-weight: 900; line-height: 1.25; margin-bottom: 26px; }
+        .final .big-word em { font-style: normal; background: linear-gradient(90deg, #93c5fd, #6ee7b7); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .final .divider-line { width: 90px; height: 4px; border-radius: 2px; background: linear-gradient(90deg, #60a5fa, #34d399); margin: 0 auto 26px; }
+        .final .tagline { font-size: 1.2em; line-height: 1.95; color: #cbd5e1; max-width: 900px; margin: 0 auto; }
+        .final .tagline strong { color: #fff; }
+        .final .thanks { font-size: 2em; font-weight: 900; margin-top: 30px; color: #fbbf24; }
+        .final .brand { margin-top: 18px; font-size: 1em; color: #94a3b8; letter-spacing: 0.06em; }
+        .final .brand b { color: #e2e8f0; }
+        .bo-label { background: rgba(217,119,6,0.12) !important; color: var(--accent3) !important; }
+        .prog { display: flex; gap: 14px; align-items: flex-start; background: white; border: 2px solid var(--border); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; box-shadow: var(--shadow); }
+        .prog .pi { font-size: 1.6em; line-height: 1; }
+        .prog h3 { font-size: 1em; margin-bottom: 2px; }
+        .prog p { font-size: 0.88em; line-height: 1.6; color: var(--text-dim); }
+        .bo-tag { display: inline-block; margin-top: 10px; font-size: 0.78em; font-weight: 700; color: var(--accent3); background: rgba(217,119,6,0.1); padding: 4px 12px; border-radius: 100px; }
+        .url-pill { display: inline-block; font-weight: 900; color: var(--accent1); background: white; border: 2px solid rgba(37,99,235,0.3); border-radius: 100px; padding: 8px 22px; font-size: 1.05em; }
+
+        /* ─── 여백 압축 (큰 글씨용) ─── */
+        #stage h1 { margin-bottom: 14px; line-height: 1.15; }
+        #stage h2 { margin-bottom: 16px; line-height: 1.22; }
+        #stage p.lead { line-height: 1.55; margin-bottom: 12px; }
+        #stage .card { padding: 18px 22px; }
+        #stage .card .icon { font-size: 1.8em; margin-bottom: 6px; }
+        #stage .card p, #stage .card li { line-height: 1.55; }
+        #stage p[style*="line-height"] { line-height: 1.6 !important; }
+        #stage .highlight-box { line-height: 1.55; margin-top: 14px; padding: 14px 26px; }
+        #stage .grid { gap: 14px; }
+        #stage .step-list { gap: 10px; }
+        #stage .step-item, #stage .practice-item { padding: 12px 20px; }
+        #stage .step-item p { line-height: 1.5; }
+        #stage .sum-line { padding: 10px 20px; margin-bottom: 8px; }
+        #stage .slide-label { margin-bottom: 10px; padding: 4px 16px; }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress" style="width: 6%;"></div>
+<div class="slide-viewport" id="viewport">
+<div id="stage">
+
+<!-- ══════════════════════════════════
+     슬라이드 1 — 타이틀
+═══════════════════════════════════ -->
+<div class="slide active" id="s1">
+    <div class="content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+        <span class="slide-label">밸런스 온 문화센터 · AI 엔진룸 투어 · 1주차</span>
+        <h1 style="margin-bottom:20px;">
+            AI 시대,<br>
+            <span class="blue">보닛을 열어봅니다</span>
+        </h1>
+        <p class="lead" style="max-width:780px; text-align:center; margin-bottom:32px;">
+            운전만 할 줄 알아도 차는 굴러갑니다.<br>
+            하지만 <strong style="color:var(--text-main);">엔진이 어떻게 도는지 아는 사람</strong>은 고장도, 과장 광고도 먼저 알아챕니다.<br>
+            오늘은 AI의 엔진룸으로 들어갑니다.<br><strong style="color:var(--accent1); font-size:1.15em;">오늘이 지나면, AI 뉴스가 다르게 들립니다.</strong>
+        </p>
+        <div style="display:flex; gap:18px; justify-content:center; flex-wrap:wrap; width:100%; max-width:920px;">
+            <div class="card" style="flex:1; min-width:200px; text-align:center;">
+                <span class="icon">🎛️</span>
+                <h3>어떻게 배우나</h3>
+                <p>규칙이 아니라 사례로 배웁니다</p>
+            </div>
+            <div class="card" style="flex:1; min-width:200px; text-align:center;">
+                <span class="icon">💬</span>
+                <h3>어떻게 말하나</h3>
+                <p>다음 단어를 '확률'로 고릅니다</p>
+            </div>
+            <div class="card" style="flex:1; min-width:200px; text-align:center;">
+                <span class="icon">🏭</span>
+                <h3>무엇으로 돌아가나</h3>
+                <p>반도체와 전기를 먹는 산업입니다</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 2 — 강사 소개
+═══════════════════════════════════ -->
+<div class="slide" id="s2">
+    <div class="speaker-layout">
+        <div class="speaker-photo-wrap">
+            <img src="inae.jpg" alt="강사 사진"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="speaker-photo-placeholder" style="display:none;">👩‍💻</div>
+        </div>
+        <div>
+            <div class="speaker-eyebrow">SPEAKER</div>
+            <div class="speaker-name">허인애</div>
+            <div class="speaker-name-en">INAE HUR</div>
+            <div class="speaker-divider"></div>
+            <div class="speaker-roles">
+                <div>
+                    <div class="speaker-role-org">CURRENT · LASERVALL CO. LTD. · HONG KONG</div>
+                    <div class="speaker-role-title">AI Center Head</div>
+                </div>
+                <div>
+                    <div class="speaker-role-org">PREV · U.S. NATIONAL INSTITUTES OF HEALTH · BETHESDA, MD</div>
+                    <div class="speaker-role-title past">Data Scientist — Image Processing</div>
+                </div>
+            </div>
+            <div class="speaker-edu">
+                <strong style="color:var(--text-main);">University of Iowa</strong> · Ph.D. Biomedical Engineering<br>
+                <span style="font-size:0.9em;">Computer Vision · Machine Learning Algorithm</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 3 — 2주 코스 로드맵
+═══════════════════════════════════ -->
+<div class="slide" id="s3">
+    <div class="content">
+        <div class="slide-label">투어 코스 안내</div>
+        <h2>2주 동안 <span class="blue">이렇게 돌아봅니다</span></h2>
+
+        <p style="font-weight:700; margin:4px 0 8px;">🔧 1주차 (오늘) — AI는 어떻게 생각하는가</p>
+        <div class="route">
+            <div class="stop"><div class="no">STOP 1</div><h3>배우는 원리</h3><p>규칙 vs 학습, 다이얼 돌리기</p></div>
+            <div class="stop"><div class="no">STOP 2</div><h3>말하는 원리</h3><p>토큰, 다음 단어, 의미 지도</p></div>
+            <div class="stop"><div class="no">STOP 3</div><h3>만들어지는 과정</h3><p>3단계 교육과 '환각'</p></div>
+            <div class="stop"><div class="no">STOP 4</div><h3>AI는 산업이다</h3><p>GPU·HBM·전력</p></div>
+        </div>
+
+        <p style="font-weight:700; margin:22px 0 8px;">🚗 2주차 (다음 주) — AI를 부리는 사람</p>
+        <div class="route week2 dim">
+            <div class="stop"><div class="no">STOP 5</div><h3>기억과 지시</h3><p>AI의 단기 기억, 잘 시키는 법</p></div>
+            <div class="stop"><div class="no">STOP 6</div><h3>내 문서로 답하게</h3><p>계약서·매뉴얼 넣고 질문</p></div>
+            <div class="stop"><div class="no">STOP 7</div><h3>일하는 AI</h3><p>검색하고 실행하는 '에이전트'</p></div>
+            <div class="stop"><div class="no">STOP 8</div><h3>회사에서 쓸 때 · 리스크</h3><p>기밀 유출, 딥페이크 사기</p></div>
+        </div>
+
+        <div class="highlight-box" style="text-align:center;">
+            💡 오늘 <strong>원리</strong>를 알면, 다음 주 <strong>활용법</strong>이 '외울 것'이 아니라 <strong>'당연한 것'</strong>이 됩니다.
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 4 — 규칙에서 학습으로
+═══════════════════════════════════ -->
+<div class="slide" id="s4">
+    <div class="content">
+        <div class="slide-label">STOP 1 · 배우는 원리</div>
+        <h2>옛날 프로그램은 <span class="orange">매뉴얼</span>,<br>AI는 <span class="blue">사례</span>로 일을 배웁니다</h2>
+        <p class="lead">예시: 스팸 메일 걸러내기</p>
+
+        <div class="vs-wrap">
+            <div class="card orange">
+                <span class="icon">📋</span>
+                <h3>규칙 방식 — 매뉴얼 주기</h3>
+                <p style="line-height:1.9;">
+                    · 사람이 규칙을 직접 적는다<br>
+                    &nbsp;&nbsp;<strong>"'대출'이 들어가면 스팸"</strong><br>
+                    · 스팸 업자가 <strong>'대*출', 'ㄷH출'</strong>로 바꾸면?<br>
+                    · 규칙을 또 추가… <strong>끝이 없음</strong>
+                </p>
+            </div>
+            <div class="vs-badge">VS</div>
+            <div class="card blue">
+                <span class="icon">📚</span>
+                <h3>학습 방식 — 사례 보여주기</h3>
+                <p style="line-height:1.9;">
+                    · 스팸 <strong>100만 통</strong>, 정상 메일 <strong>100만 통</strong>을 보여준다<br>
+                    · 어떤 특징이 스팸인지 <strong>스스로 찾는다</strong><br>
+                    · 처음 보는 수법도 <strong>"냄새"로 잡아냄</strong>
+                </p>
+            </div>
+        </div>
+
+        <div class="highlight-box gold" style="text-align:center;">
+            🧑‍💼 <strong>회사로 치면?</strong> 신입에게 두꺼운 매뉴얼을 주는 대신,<br>
+            <strong>선배 옆에서 실제 사례를 수천 건 보게 해서 감을 익히게 하는 것</strong> — 이것이 '머신러닝'입니다.
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 5 — 학습 = 다이얼 돌리기
+═══════════════════════════════════ -->
+<div class="slide" id="s5">
+    <div class="content">
+        <div class="slide-label">STOP 1 · 배우는 원리</div>
+        <h2>'학습'의 정체 — <span class="blue">다이얼을 조금씩 돌리기</span></h2>
+
+        <div class="grid col2">
+            <div class="card green">
+                <span class="icon">🚿</span>
+                <h3>아침 샤워 온도 맞추기</h3>
+                <p style="line-height:1.9;">
+                    ① 물을 틀어본다 → <strong>"앗, 뜨거!"</strong><br>
+                    ② 찬물 쪽으로 <strong>조금</strong> 돌린다<br>
+                    ③ 이번엔 <strong>"좀 차네"</strong> → 뜨거운 쪽으로 <strong>살짝</strong><br>
+                    ④ 몇 번 반복하면 <strong>딱 맞는 온도</strong>
+                </p>
+                <p class="kicker">다이얼 2개(온수·냉수)로 하는 '학습'</p>
+            </div>
+            <div class="card blue">
+                <span class="icon">🤖</span>
+                <h3>AI도 똑같습니다. 규모만 다를 뿐</h3>
+                <p style="line-height:1.9;">
+                    ① 문제를 풀어본다 → <strong>정답과 비교</strong><br>
+                    ② 틀린 만큼 다이얼을 <strong>조금씩</strong> 조정<br>
+                    ③ 이걸 <strong>수억 번</strong> 반복
+                </p>
+                <div class="dial-row">
+                    <div class="dial" style="--r:-40deg"></div>
+                    <div class="dial" style="--r:15deg"></div>
+                    <div class="dial" style="--r:70deg"></div>
+                    <div class="dial" style="--r:-10deg"></div>
+                </div>
+                <p class="kicker" style="text-align:center;">× 1,750억 개 (2020년 GPT-3 기준, 공개된 숫자)</p>
+            </div>
+        </div>
+
+        <div class="highlight-box" style="text-align:center;">
+            🏢 이 다이얼을 <strong>여러 층으로 쌓은 것</strong>이 <strong>'딥러닝'</strong>입니다.<br>
+            1층은 선과 모서리 → 2층은 눈·코·입 → 3층은 '얼굴'. 아래층이 올린 보고를 위층이 종합하는 <strong>결재 라인</strong>과 비슷합니다.
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 6 — 강사 연구 사례 + 블랙박스
+═══════════════════════════════════ -->
+<div class="slide" id="s6">
+    <div class="content">
+        <div class="slide-label">STOP 1 · 현장 사례</div>
+        <h2>실제로는 이런 일을 합니다<br><span class="green">세포 사진 속 암세포 추적</span></h2>
+
+        <div class="grid col2" style="align-items:center;">
+            <div>
+                <video src="cell_tracking.mp4" autoplay muted loop playsinline
+                    style="width:100%; border-radius:18px; border:2px solid var(--border); box-shadow:var(--shadow); display:block; background:#000;"></video>
+                <p class="kicker" style="text-align:center;">수천 장의 현미경 사진에서 세포를 하나하나 따라가는 AI</p>
+            </div>
+            <div>
+                <div class="card green" style="margin-bottom:14px;">
+                    <h3>✅ 사람보다 잘하는 것</h3>
+                    <p>연구원이 몇 주 걸릴 사진 분석을 <strong>몇 시간</strong>에. 지치지도, 놓치지도 않습니다.</p>
+                </div>
+                <div class="card red">
+                    <h3>🤔 그런데 곤란한 점</h3>
+                    <p>"<strong>왜</strong> 이 세포가 약에 반응한다고 판단했나?"<br>
+                    물어보면 — 수백만 개 다이얼 값만 있을 뿐, <strong>이유를 말로 설명하지 못합니다.</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-box warning" style="text-align:center;">
+            ⬛ 이것을 <strong>'블랙박스' 문제</strong>라고 합니다. 결과는 맞는데 이유는 모른다.<br>
+            그래서 <strong>의료·금융·법률</strong>처럼 책임이 따르는 곳에서는 <strong>사람의 최종 확인</strong>이 꼭 필요합니다.
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 7 — 토큰
+═══════════════════════════════════ -->
+<div class="slide" id="s7">
+    <div class="content">
+        <div class="slide-label">STOP 2 · 말하는 원리</div>
+        <h2>AI는 글자를 읽지 않습니다<br><span class="blue">'토큰'이라는 조각</span>으로 읽습니다</h2>
+        <p class="lead">컴퓨터는 숫자만 계산할 수 있습니다. 그래서 문장을 조각으로 자르고, 조각마다 번호를 붙입니다.</p>
+
+        <div class="card" style="margin-bottom:16px;">
+            <p style="font-size:0.85em; margin-bottom:10px;">✂️ 문장: <strong style="color:var(--text-main);">"오늘 회식은 삼겹살입니다"</strong></p>
+            <div class="tokens">
+                <span class="tok c1">오늘<small>#48213</small></span>
+                <span class="tok c2">␣회<small>#9120</small></span>
+                <span class="tok c3">식은<small>#30477</small></span>
+                <span class="tok c4">␣삼겹<small>#71550</small></span>
+                <span class="tok c5">살<small>#2831</small></span>
+                <span class="tok c1">입니다<small>#15602</small></span>
+            </div>
+            <p class="kicker">※ 이해를 돕기 위한 예시입니다. 실제 자르는 방식과 번호는 AI마다 다릅니다.</p>
+        </div>
+
+        <div class="grid col2">
+            <div class="card blue">
+                <h3>📦 택배 분류 센터처럼</h3>
+                <p>물건(글자)을 그대로 옮기지 않고 <strong>송장 번호(숫자)</strong>를 붙여서 처리합니다. AI 안에서는 처음부터 끝까지 <strong>숫자만 오갑니다.</strong></p>
+            </div>
+            <div class="card orange">
+                <h3>💰 알아두면 쓸모 있는 것</h3>
+                <p>AI 요금·사용량 한도는 <strong>'토큰 수'</strong>로 계산합니다. 같은 내용이라도 언어에 따라 조각 수가 달라, <strong>한국어가 영어보다 토큰을 더 먹는 경우가 많습니다.</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 8 — 다음 단어 맞히기
+═══════════════════════════════════ -->
+<div class="slide" id="s8">
+    <div class="content">
+        <div class="slide-label">STOP 2 · 말하는 원리</div>
+        <h2>AI가 하는 일은 딱 하나 — <span class="blue">다음 조각 맞히기</span></h2>
+
+        <div class="grid col2" style="align-items:start;">
+            <div>
+                <div class="prompt-line">오늘 회식 장소는 <span class="blank">&nbsp;?&nbsp;</span></div>
+                <div class="prob">
+                    <div class="prob-row top"><span class="w">삼겹살집</span><span class="bar"><i style="--p:62%"></i></span><span class="pct">41%</span></div>
+                    <div class="prob-row"><span class="w">횟집</span><span class="bar"><i style="--p:34%"></i></span><span class="pct">22%</span></div>
+                    <div class="prob-row"><span class="w">회사 근처</span><span class="bar"><i style="--p:27%"></i></span><span class="pct">18%</span></div>
+                    <div class="prob-row"><span class="w">치킨집</span><span class="bar"><i style="--p:20%"></i></span><span class="pct">13%</span></div>
+                    <div class="prob-row odd"><span class="w">달나라</span><span class="bar"><i style="--p:2%"></i></span><span class="pct">0.01%</span></div>
+                </div>
+                <p class="kicker">※ 원리 설명용 예시 숫자입니다.</p>
+            </div>
+            <div>
+                <div class="card blue" style="margin-bottom:14px;">
+                    <h3>📱 휴대폰 자동완성의 '초대형 버전'</h3>
+                    <p>카톡에서 "감사"를 치면 "합니다"가 뜨죠. AI는 그걸 <strong>인터넷 수천억 문장</strong>으로 훈련해, 한 조각씩 이어 붙여 <strong>긴 글 전체</strong>를 만듭니다.</p>
+                </div>
+                <div class="card green">
+                    <h3>🎲 그래서 매번 답이 조금씩 다릅니다</h3>
+                    <p>항상 1등만 고르면 글이 딱딱해져서, <strong>가끔은 2~3등 단어도</strong> 섞어 고릅니다. 같은 질문에 답이 달라지는 이유입니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-box gold" style="text-align:center;">
+            🔑 <strong>AI는 '정답'을 찾는 게 아니라 '가장 그럴듯한 다음 말'을 고릅니다.</strong><br>
+            이 한 문장이 오늘 강의의 핵심입니다. 뒤에서 나올 '환각'도 여기서 시작됩니다.
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 9 — 임베딩 (의미 지도)
+═══════════════════════════════════ -->
+<div class="slide" id="s9">
+    <div class="content">
+        <div class="slide-label">STOP 2 · 말하는 원리</div>
+        <h2>단어의 뜻은 <span class="green">'지도 위의 좌표'</span>로 저장됩니다 <span style="font-size:0.6em; font-weight:700; color:var(--text-dim); margin-left:10px; white-space:nowrap;">= 임베딩(Embedding)</span></h2>
+
+        <div class="grid col2" style="align-items:center; grid-template-columns: 1.15fr 1fr;">
+            <div class="card" style="padding:12px;">
+                <svg viewBox="0 0 520 380" role="img" aria-label="의미가 비슷한 단어끼리 모여 있는 지도" style="width:100%; display:block;">
+                    <defs>
+                        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/>
+                        </marker>
+                    </defs>
+                    <rect x="0" y="0" width="520" height="380" fill="#fbfaf7" rx="12"/>
+                    <g stroke="#ece8df" stroke-width="1">
+                        <line x1="0" y1="95" x2="520" y2="95"/><line x1="0" y1="190" x2="520" y2="190"/><line x1="0" y1="285" x2="520" y2="285"/>
+                        <line x1="130" y1="0" x2="130" y2="380"/><line x1="260" y1="0" x2="260" y2="380"/><line x1="390" y1="0" x2="390" y2="380"/>
+                    </g>
+                    <!-- 자동차 동네 -->
+                    <ellipse cx="105" cy="92" rx="92" ry="62" fill="rgba(37,99,235,0.08)" stroke="rgba(37,99,235,0.35)" stroke-dasharray="5 4"/>
+                    <text x="105" y="42" text-anchor="middle" font-size="16" font-weight="700" fill="#2563eb">🚗 자동차 동네</text>
+                    <circle cx="70" cy="80" r="6" fill="#2563eb"/><text x="80" y="85" font-size="19" fill="#1a1a2e">쏘나타</text>
+                    <circle cx="112" cy="108" r="6" fill="#2563eb"/><text x="122" y="113" font-size="19" fill="#1a1a2e">그랜저</text>
+                    <circle cx="58" cy="130" r="6" fill="#2563eb"/><text x="68" y="135" font-size="19" fill="#1a1a2e">K5</text>
+                    <!-- 음식 동네 -->
+                    <ellipse cx="410" cy="95" rx="96" ry="62" fill="rgba(217,119,6,0.08)" stroke="rgba(217,119,6,0.4)" stroke-dasharray="5 4"/>
+                    <text x="410" y="45" text-anchor="middle" font-size="16" font-weight="700" fill="#b45309">🍖 회식 동네</text>
+                    <circle cx="360" cy="84" r="6" fill="#d97706"/><text x="370" y="89" font-size="19" fill="#1a1a2e">삼겹살</text>
+                    <circle cx="410" cy="116" r="6" fill="#d97706"/><text x="420" y="121" font-size="19" fill="#1a1a2e">소주</text>
+                    <circle cx="440" cy="76" r="6" fill="#d97706"/><text x="450" y="81" font-size="19" fill="#1a1a2e">맥주</text>
+                    <!-- 관계 화살표 -->
+                    <text x="260" y="205" text-anchor="middle" font-size="16" font-weight="700" fill="#7c3aed">👑 관계도 '방향'으로 저장</text>
+                    <circle cx="120" cy="250" r="6" fill="#059669"/><text x="80" y="275" font-size="19" fill="#1a1a2e">남자</text>
+                    <circle cx="210" cy="330" r="6" fill="#059669"/><text x="220" y="350" font-size="19" fill="#1a1a2e">여자</text>
+                    <line x1="126" y1="256" x2="202" y2="323" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#ah)"/>
+                    <circle cx="330" cy="240" r="6" fill="#059669"/><text x="300" y="265" font-size="19" fill="#1a1a2e">왕</text>
+                    <circle cx="420" cy="320" r="6" fill="#059669"/><text x="430" y="340" font-size="19" fill="#1a1a2e">여왕</text>
+                    <line x1="336" y1="246" x2="412" y2="313" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#ah)"/>
+                </svg>
+            </div>
+            <div>
+                <div class="card green" style="margin-bottom:14px;">
+                    <h3>🗺️ 뜻이 비슷하면 가까이 산다</h3>
+                    <p>'쏘나타'와 '그랜저'는 이웃, '쏘나타'와 '소주'는 멀리. AI는 모든 단어를 <strong>수천 차원 지도</strong>의 한 점으로 기억합니다.</p>
+                </div>
+                <div class="card" style="border-top:5px solid #7c3aed;">
+                    <h3>➕ 뜻으로 '계산'도 됩니다</h3>
+                    <p style="font-size:1.15em; font-weight:700; color:var(--text-main); margin:6px 0;">왕 − 남자 + 여자 ≈ 여왕</p>
+                    <p>'남자→여자' 방향과 '왕→여왕' 방향이 <strong>나란합니다.</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-box green" style="text-align:center;">
+            🔍 그래서 "차 추천해줘"라고 해도 <strong>'자동차' 동네</strong>를 찾아갑니다. 단어가 아니라 <strong>뜻</strong>으로 검색하는 것 — 다음 주 '내 문서 검색'의 원리입니다.
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 10 — 어텐션
+═══════════════════════════════════ -->
+<div class="slide" id="s10">
+    <div class="content">
+        <div class="slide-label">STOP 2 · 말하는 원리</div>
+        <h2>같은 '배'인데 어떻게 알까? — <span class="blue">어텐션(주목)</span></h2>
+        <p class="lead">AI는 한 단어를 읽을 때, 문장 속 <strong>어느 단어를 참고해야 하는지</strong> 스스로 점수를 매깁니다.</p>
+
+        <div class="card" style="margin-bottom:14px;">
+            <div class="sent">
+                <span class="att mid">점심을</span> <span class="att strong">많이 먹어서</span> <span class="focus">배</span>가 <span class="att strong">부르다</span>
+                <span style="float:right; font-size:0.7em; color:var(--accent2);">→ 🫃 신체</span>
+            </div>
+            <div class="sent">
+                <span class="att strong">낚시하러</span> <span class="focus">배</span>를 <span class="att strong">타고</span> <span class="att mid">섬에</span> 갔다
+                <span style="float:right; font-size:0.7em; color:var(--accent1);">→ 🚤 선박</span>
+            </div>
+            <div class="sent">
+                <span class="att mid">추석 선물로 받은</span> <span class="focus">배</span>를 <span class="att strong">깎아</span> <span class="att strong">먹었다</span>
+                <span style="float:right; font-size:0.7em; color:var(--accent3);">→ 🍐 과일</span>
+            </div>
+            <p class="kicker">파란색이 진할수록 AI가 '배'의 뜻을 정할 때 더 주목한 단어</p>
+        </div>
+
+        <div class="grid col2">
+            <div class="card blue">
+                <h3>🗣️ 회의에 비유하면</h3>
+                <p>10명이 말해도 모두를 똑같이 듣지 않죠. <strong>이 안건의 핵심 담당자 말</strong>에 더 귀를 기울입니다. AI는 단어마다 이걸 <strong>동시에</strong> 합니다.</p>
+            </div>
+            <div class="card orange">
+                <h3>📜 2017년, 모든 것이 바뀐 논문</h3>
+                <p>구글 연구진의 <strong>"Attention Is All You Need"</strong>. 여기서 나온 구조가 <strong>트랜스포머</strong>이고, ChatGPT의 'T'와 Gemini가 모두 이 위에 서 있습니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 11 — 만들어지는 3단계
+═══════════════════════════════════ -->
+<div class="slide" id="s11">
+    <div class="content">
+        <div class="slide-label">STOP 3 · 만들어지는 과정</div>
+        <h2>Gemini 같은 AI는<br><span class="orange">신입사원처럼 3단계</span>로 키웁니다</h2>
+
+        <div class="pipe">
+            <div class="card blue">
+                <div class="stage">1단계 · 사전학습</div>
+                <h3>📚 세상의 글을 통째로 읽기</h3>
+                <p>인터넷·책·논문 등 엄청난 양의 글로 <strong>'다음 단어 맞히기'</strong>를 수개월 훈련.</p>
+                <div class="analogy">🧑‍🎓 <strong>박식하지만 눈치 없는 신입</strong><br>아는 건 많은데 질문하면 엉뚱한 소리도 함</div>
+            </div>
+            <div class="arrow">▶</div>
+            <div class="card green">
+                <div class="stage">2단계 · 미세조정</div>
+                <h3>📝 모범 답안으로 교육</h3>
+                <p>사람이 직접 쓴 <strong>"이런 질문엔 이렇게 답한다"</strong> 예시로 대화하는 법을 가르침.</p>
+                <div class="analogy">🏢 <strong>신입 OJT</strong><br>보고서 양식, 고객 응대 요령을 익힘</div>
+            </div>
+            <div class="arrow">▶</div>
+            <div class="card orange">
+                <div class="stage">3단계 · 사람 피드백 강화학습</div>
+                <h3>👍 답변에 점수 매기기</h3>
+                <p>AI 답변 여러 개를 사람이 비교해 <strong>더 나은 쪽</strong>에 점수. 점수 높은 방향으로 다이얼 조정.</p>
+                <div class="analogy">📊 <strong>인사고과</strong><br>칭찬받는 행동을 더 하게 됨</div>
+            </div>
+        </div>
+
+        <div class="highlight-box gold" style="text-align:center;">
+            💸 1단계에만 <strong>반도체 수만 개 × 수개월</strong>이 들어갑니다. 그래서 이런 AI를 만들 수 있는 회사는 세계에 <strong>손에 꼽습니다.</strong><br>
+            그리고 3단계 때문에 AI는 <strong>"사람이 좋아할 만한 답"</strong>을 하려는 경향이 생깁니다 — 다음 장의 복선입니다.
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 12 — 환각의 원리
+═══════════════════════════════════ -->
+<div class="slide" id="s12">
+    <div class="content">
+        <div class="slide-label" style="background:rgba(220,38,38,0.08); color:var(--accent-red);">STOP 3 · 한계</div>
+        <h2>AI가 <span class="red">그럴듯한 거짓말</span>을 하는 진짜 이유 <span style="font-size:0.6em; font-weight:700; color:var(--text-dim); margin-left:10px; white-space:nowrap;">= 환각(Hallucination)</span></h2>
+
+        <div class="grid col2">
+            <div class="card red">
+                <span class="icon">🎲</span>
+                <h3>① 구조상 '그럴듯함'을 고르는 기계</h3>
+                <p>AI는 <strong>사실 확인 장치가 없습니다.</strong> "그 논문 제목은 ___" 다음에 <strong>논문 제목처럼 생긴 말</strong>을 이어 붙일 뿐. 진짜인지는 모릅니다.</p>
+            </div>
+            <div class="card red">
+                <span class="icon">📝</span>
+                <h3>② '모르겠습니다'가 손해인 시험</h3>
+                <p>객관식 시험에서 빈칸은 0점, <strong>찍으면 맞을 수도</strong> 있죠. 채점 방식이 그러면 <strong>모를 때도 찍는 습관</strong>이 생깁니다. AI 훈련도 비슷합니다.</p>
+            </div>
+        </div>
+
+        <div class="highlight-box warning">
+            🧑‍💼 <strong>딱 이런 직원입니다:</strong> 부장님이 물어보면 <strong>"확인해보겠습니다"</strong> 대신 <strong>자신 있게 뭐라도 대답하는 신입.</strong><br>
+            말투는 확신에 차 있는데, 숫자·날짜·인명·법 조항·출처에서 특히 자주 틀립니다.
+        </div>
+
+        <div class="grid col3" style="margin-top:16px;">
+            <div class="card green" style="text-align:center; padding:18px;">
+                <h3>🔗 출처를 달라고 하기</h3>
+                <p style="font-size:0.9em;">그리고 그 링크를 <strong>직접 열어보기</strong></p>
+            </div>
+            <div class="card green" style="text-align:center; padding:18px;">
+                <h3>🤷 "모르면 모른다고 해"</h3>
+                <p style="font-size:0.9em;">이 한 줄로 <strong>찍기가 줄어듭니다</strong></p>
+            </div>
+            <div class="card green" style="text-align:center; padding:18px;">
+                <h3>✅ 숫자·법·돈은 교차확인</h3>
+                <p style="font-size:0.9em;">최종 확인은 <strong>사람의 몫</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 14 — AI는 산업이다
+═══════════════════════════════════ -->
+<div class="slide" id="s14">
+    <div class="content">
+        <div class="slide-label">STOP 4 · AI는 산업이다</div>
+        <h2>AI 뉴스가 <span class="blue">반도체·전기 뉴스</span>인 이유</h2>
+        <p class="lead">AI를 하나의 <strong>공장</strong>이라고 생각하면 요즘 경제 뉴스가 한 번에 읽힙니다.</p>
+
+        <div class="factory">
+            <div class="card blue">
+                <div class="part">공장의 일꾼</div>
+                <div class="big">🧮 GPU</div>
+                <p><strong>CPU</strong>는 어려운 문제를 푸는 <strong>박사 몇 명</strong>.<br>
+                <strong>GPU</strong>는 곱셈 잘하는 <strong>일꾼 수천 명</strong>.<br>
+                다이얼 수천억 개를 동시에 계산하려면 일꾼이 많아야 합니다. <strong>엔비디아</strong>가 주목받는 이유.</p>
+            </div>
+            <div class="card green">
+                <div class="part">공장의 작업대</div>
+                <div class="big">🧱 HBM 메모리</div>
+                <p>일꾼이 아무리 빨라도 <strong>재료가 늦게 오면</strong> 논다.<br>
+                메모리를 <strong>아파트처럼 층층이 쌓아</strong> 일꾼 바로 옆에 붙인 초고속 작업대가 HBM.<br>
+                <strong>SK하이닉스·삼성전자</strong>가 여기서 경쟁합니다.</p>
+            </div>
+            <div class="card orange">
+                <div class="part">공장의 동력</div>
+                <div class="big">⚡ 전력</div>
+                <p>AI 데이터센터는 <strong>전기를 엄청나게</strong> 먹고, 열을 식히는 데도 전기가 듭니다.<br>
+                그래서 빅테크 기업들이 <strong>원자력 발전소와 장기 전력 계약</strong>을 맺는 뉴스가 나옵니다.</p>
+            </div>
+        </div>
+
+        <div class="highlight-box" style="text-align:center;">
+            🔗 <strong>질문 한 번 = 일꾼(GPU) + 작업대(HBM) + 전기</strong><br>
+            "AI가 공짜처럼 보여도 공짜가 아닌 이유", 그리고 <strong>한국 반도체가 AI 시대에 중요한 이유</strong>입니다.
+        </div>
+        <p class="kicker" style="text-align:center;">※ 산업 구조 설명이며, 특정 종목에 대한 투자 권유가 아닙니다.</p>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 15 — 한 장 요약
+═══════════════════════════════════ -->
+<div class="slide" id="s15">
+    <div class="content">
+        <div class="slide-label" style="background:rgba(217,119,6,0.1); color:var(--accent3);">📸 이 화면을 사진으로 찍어두세요</div>
+        <h2>오늘의 엔진룸, <span class="blue">한 장 요약</span></h2>
+
+        <div class="sum-line"><span>📚</span><span><span class="q">배우는 법</span> — 매뉴얼(규칙)이 아니라 <strong>사례</strong>로 배운다</span></div>
+        <div class="sum-line"><span>🎛️</span><span><span class="q">학습</span> — 틀린 만큼 <strong>수천억 개 다이얼</strong>을 조금씩 돌리는 것</span></div>
+        <div class="sum-line"><span>✂️</span><span><span class="q">말하는 법</span> — 글을 <strong>토큰</strong>으로 잘라, <strong>다음 조각을 확률로</strong> 고른다</span></div>
+        <div class="sum-line"><span>🗺️</span><span><span class="q">이해하는 법</span> — 뜻은 <strong>지도 위 좌표</strong>, 문맥은 <strong>어텐션(주목)</strong></span></div>
+        <div class="sum-line"><span>🎓</span><span><span class="q">만드는 법</span> — 통째로 읽기 → 모범답안 교육 → 사람 점수</span></div>
+        <div class="sum-line" style="border-color:rgba(220,38,38,0.3);"><span>🎲</span><span><span class="q" style="color:var(--accent-red);">환각</span> — 버그가 아니라 <strong>구조</strong>. 그래서 숫자·법·돈은 <strong>반드시 확인</strong></span></div>
+        <div class="sum-line"><span>🏭</span><span><span class="q">산업</span> — AI = <strong>GPU + HBM + 전기</strong>를 먹는 공장</span></div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 — 브릿지: 평균의 답 vs 나의 답
+═══════════════════════════════════ -->
+<div class="slide" id="s-bridge1">
+    <div class="content">
+        <div class="slide-label">엔진룸에서 발견한 한 가지</div>
+        <h2>AI는 <span class="blue">'평균의 답'</span>을 줍니다<br><span class="orange">'나의 답'</span>은 AI도 모릅니다</h2>
+        <p class="lead">오늘 본 것처럼 AI는 <strong>가장 확률이 높은 말</strong>, 즉 <strong>많은 사람에게 통하는 말</strong>을 고릅니다.</p>
+
+        <div class="vs-wrap">
+            <div class="card blue">
+                <span class="icon">🤖</span>
+                <h3>AI가 잘 아는 것 — 세상의 평균</h3>
+                <p style="line-height:1.9;">
+                    "50대 남성 건강 관리법"<br>
+                    "부하 직원과 소통 잘하는 법"<br>
+                    "은퇴 후 준비할 것 10가지"<br>
+                    → 수많은 글에서 뽑은 <strong>그럴듯한 정답</strong>
+                </p>
+            </div>
+            <div class="vs-badge">VS</div>
+            <div class="card orange">
+                <span class="icon">🧭</span>
+                <h3>AI가 모르는 것 — 나라는 사람</h3>
+                <p style="line-height:1.9;">
+                    <strong>내 몸</strong>이 요즘 보내는 신호<br>
+                    <strong>나와 저 사람</strong>이 자꾸 부딪히는 이유<br>
+                    <strong>내가 정말 원하는</strong> 인생 후반전<br>
+                    → 인터넷 어디에도 없는 <strong>데이터</strong>
+                </p>
+            </div>
+        </div>
+
+        <div class="highlight-box gold" style="text-align:center; font-size:1.15em;">
+            AI 시대의 진짜 경쟁력은 좋은 답을 <strong>찾는</strong> 능력이 아니라,<br>
+            <strong>나에게 맞는 답을 알아보는 능력</strong>입니다. 그 출발점은 <strong>'나를 제대로 아는 것'</strong>입니다.
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 — 밸런스 온 소개
+═══════════════════════════════════ -->
+<div class="slide" id="s-balance1">
+    <div class="content">
+        <div class="slide-label bo-label">BALANCE ON · 밸런스 온 문화센터</div>
+        <h2>AI가 <span class="blue">세상</span>을 이해하게 돕는다면,<br>밸런스 온은 <span class="orange">나와 사람</span>을 이해하게 돕습니다</h2>
+        <p class="lead">일과 관계, 수많은 선택 속에서 <strong>잠시 멈춰 나를 돌아보는</strong> 문화·교육 공간입니다.</p>
+
+        <div class="grid col2">
+            <div>
+                <p style="font-weight:700; margin-bottom:10px;">🎨 문화 강좌 — 몸과 마음의 균형</p>
+                <div class="prog"><span class="pi">💪</span><div><h3>건강 코칭</h3><p>전문 코치와 생활 습관 점검, 무리하지 않는 건강 루틴</p></div></div>
+                <div class="prog"><span class="pi">🎤</span><div><h3>노래자랑 클래스</h3><p>잘해도 못해도 괜찮은, 스트레스 푸는 시간</p></div></div>
+                <div class="prog"><span class="pi">🧰</span><div><h3>문화 활동</h3><p>가죽 공예, 석고 방향제 등 손으로 만드는 즐거움</p></div></div>
+            </div>
+            <div>
+                <p style="font-weight:700; margin-bottom:10px;">📖 인문학 클래스 — 나와 사람을 깊이 이해하기</p>
+                <div class="prog"><span class="pi">👥</span><div><h3>인물학 · 명리학</h3><p>사람의 성향과 삶의 패턴으로 관계와 선택의 실마리 찾기</p></div></div>
+                <div class="prog"><span class="pi">🧭</span><div><h3>인생학</h3><p>삶의 의미와 방향을 묻고, 내 가치관을 정리하기</p></div></div>
+                <div class="prog" style="border-color:rgba(37,99,235,0.35);"><span class="pi">🤖</span><div><h3>AI 특강 — 지금 이 시간</h3><p>변화하는 세상을 이해하는 교양</p></div></div>
+            </div>
+        </div>
+
+        <div class="highlight-box" style="text-align:center;">
+            회사에서는 <strong>AI</strong>를, 밸런스 온에서는 <strong>나</strong>를. 둘 다 아는 사람이 인생 후반전을 주도합니다.
+
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     슬라이드 16 — 다음 주 예고
+═══════════════════════════════════ -->
+<div class="slide" id="s16">
+    <div class="content">
+        <div class="slide-label" style="background:rgba(5,150,105,0.1); color:var(--accent2);">다음 주 예고</div>
+        <h2>보닛을 열어봤으니,<br>다음 주엔 <span class="green">운전대를 잡습니다</span></h2>
+
+        <div class="grid col2">
+            <div class="card green">
+                <span class="icon">🧠</span>
+                <h3>AI의 단기 기억과 '잘 시키는 법'</h3>
+                <p>긴 대화에서 앞 내용을 까먹는 이유, 그리고 원리에서 나온 지시문 공식</p>
+            </div>
+            <div class="card green">
+                <span class="icon">📂</span>
+                <h3>내 문서로 답하게 하기</h3>
+                <p>계약서·매뉴얼·회의자료를 넣고 질문하기 — 오늘 배운 '의미 지도'의 응용</p>
+            </div>
+            <div class="card green">
+                <span class="icon">🦾</span>
+                <h3>대답하는 AI → 일하는 AI</h3>
+                <p>스스로 검색하고, 정리하고, 실행하는 '에이전트'</p>
+            </div>
+            <div class="card red">
+                <span class="icon">🛡️</span>
+                <h3>회사에서 쓸 때 조심할 것</h3>
+                <p>기밀 유출, 딥페이크 사기, 회사에서 AI 쓰는 5원칙</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div><!-- /stage -->
+</div><!-- /slide-viewport -->
+
+<div class="nav">
+    <button class="nav-btn" onclick="go(-1)" aria-label="이전">◀</button>
+    <span class="nav-counter" id="counter">1 / 17</span>
+    <button class="nav-btn" onclick="go(1)" aria-label="다음">▶</button>
+</div>
+<script>
+    const slides   = document.querySelectorAll('.slide');
+    const viewport = document.getElementById('viewport');
+    const total    = slides.length;
+    let cur = 0;
+
+    function show(n) {
+        slides[cur].classList.remove('active');
+        cur = (n + total) % total;
+        slides[cur].classList.add('active');
+        document.getElementById('counter').textContent = `${cur + 1} / ${total}`;
+        document.getElementById('progress').style.width = `${((cur + 1) / total) * 100}%`;
+        fitSlide(slides[cur]);
+    }
+
+    function go(dir) { show(cur + dir); }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === ' ') go(1);
+        else if (e.key === 'ArrowLeft') go(-1);
+    });
+
+    let tx = 0;
+    document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+    document.addEventListener('touchend', e => {
+        const d = tx - e.changedTouches[0].clientX;
+        if (Math.abs(d) > 50) go(d > 0 ? 1 : -1);
+    });
+
+
+    let W = 1440; const H = 810;
+    const stage = document.getElementById('stage');
+    function fitStage() {
+        W = Math.max(1200, Math.round(H * window.innerWidth / window.innerHeight));
+        stage.style.width = W + 'px';
+        const k = Math.min(window.innerWidth / W, window.innerHeight / H);
+        stage.style.transform = `translate(-50%, -50%) scale(${k})`;
+    }
+    function fitSlide(sl) {
+        const c = sl.querySelector('.content, .speaker-layout');
+        if (!c) return;
+        // 폭은 화면 끝까지 유지하고, 넘치면 글자 크기만 줄임
+        c.style.transform = '';
+        c.style.fontSize = '';
+        const cs = getComputedStyle(sl);
+        const avail = H - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+        let f = 1;
+        while (c.offsetHeight > avail && f > 0.6) {
+            f -= 0.02;
+            c.style.fontSize = f + 'em';
+        }
+        if (c.offsetHeight > avail) c.style.transform = `scale(${avail / c.offsetHeight})`;
+    }
+    window.addEventListener('resize', () => { fitStage(); fitSlide(slides[cur]); });
+    if (document.fonts) document.fonts.ready.then(() => fitSlide(slides[cur]));
+    fitStage(); fitSlide(slides[cur]);
+    document.addEventListener('keydown', e => { if (e.key === 'f') document.documentElement.requestFullscreen?.(); });
+    document.getElementById('counter').textContent = `1 / ${total}`;
+    document.getElementById('progress').style.width = `${(1 / total) * 100}%`;
+</script>
+
+</body></html>
