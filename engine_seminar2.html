@@ -611,6 +611,18 @@
             display: inline-block; margin-top: 12px; font-size: 0.85em; font-weight: 700;
             color: #b91c1c; border: 2px solid #b91c1c; border-radius: 8px; padding: 4px 12px;
         }
+
+        /* ─── 유튜브 임베드 ─── */
+        .embed-wrap { display: grid; grid-template-columns: 330px 1fr; gap: 28px; align-items: center; margin-top: 4px; }
+        .embed-frame {
+            width: 330px; height: 586px; border-radius: 18px; overflow: hidden;
+            background: #000; box-shadow: var(--shadow-lg); border: 3px solid #1a1a2e;
+        }
+        .embed-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+        .embed-info h3 { font-size: 1.5em; line-height: 1.4; margin-bottom: 10px; }
+        .embed-info .meta { font-size: 1em; color: var(--text-dim); line-height: 1.6; }
+        .embed-info .fallback { font-size: 0.85em; color: var(--text-dim); margin-top: 12px; word-break: break-all; }
+        .embed-info .fallback a { color: var(--accent1); }
     </style>
 </head>
 <body>
@@ -725,12 +737,16 @@
     <div class="content">
         <div class="slide-label" style="background:rgba(220,38,38,0.1); color:var(--accent-red);">🎬 함께 보는 영상 ①</div>
         <h2>AI, 남들은 이렇게 쓰고 있습니다</h2>
-        <div class="video-box">
-            <div class="play">▶</div>
-            <div>
+        <div class="embed-wrap">
+            <div class="embed-frame">
+                <iframe src="https://www.youtube.com/embed/5fwDJpxEqp4?rel=0" title="답장 메일, 3초 완성 | AI 업무자동화 #1"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            </div>
+            <div class="embed-info">
                 <h3>답장 메일, 3초 완성 | AI 업무자동화 #1</h3>
-                <p>AI커리어 · 31초 · 2026년 9월 · "매일 답장 쓰다가 하루 다 가는 거, 나만 그런가요?"</p>
-                <p style="margin-top:10px;"><a href="https://www.youtube.com/shorts/5fwDJpxEqp4" target="_blank">https://www.youtube.com/shorts/5fwDJpxEqp4</a></p>
+                <p class="meta">AI커리어 · 31초 · 2026년 9월<br>"매일 답장 쓰다가 하루 다 가는 거, 나만 그런가요?"</p>
+                <p class="fallback">화면에서 재생되지 않으면 &nbsp;<a href="https://www.youtube.com/shorts/5fwDJpxEqp4" target="_blank">youtube.com/shorts/5fwDJpxEqp4</a></p>
             </div>
         </div>
         <div class="highlight-box" style="text-align:center;">
@@ -872,12 +888,16 @@
     <div class="content">
         <div class="slide-label" style="background:rgba(220,38,38,0.1); color:var(--accent-red);">🎬 함께 보는 영상 ②</div>
         <h2>서류 한 장, 찍어서 물어보기</h2>
-        <div class="video-box">
-            <div class="play">▶</div>
-            <div>
+        <div class="embed-wrap">
+            <div class="embed-frame">
+                <iframe src="https://www.youtube.com/embed/KbyWt4RLcQw?rel=0" title="AI에게 PDF 통째로 주면 정말 다 읽는 걸까?"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            </div>
+            <div class="embed-info">
                 <h3>AI에게 PDF 통째로 주면 정말 다 읽는 걸까?</h3>
-                <p>쉴틈없는직장인 · 1분 3초 · 2026년 9월 · 파일을 올릴 때 놓치기 쉬운 점까지</p>
-                <p style="margin-top:10px;"><a href="https://www.youtube.com/shorts/KbyWt4RLcQw" target="_blank">https://www.youtube.com/shorts/KbyWt4RLcQw</a></p>
+                <p class="meta">쉴틈없는직장인 · 1분 3초 · 2026년 9월<br>파일을 올릴 때 놓치기 쉬운 점까지</p>
+                <p class="fallback">화면에서 재생되지 않으면 &nbsp;<a href="https://www.youtube.com/shorts/KbyWt4RLcQw" target="_blank">youtube.com/shorts/KbyWt4RLcQw</a></p>
             </div>
         </div>
         <div class="highlight-box" style="text-align:center;">
@@ -1033,12 +1053,16 @@
     <div class="content">
         <div class="slide-label" style="background:rgba(220,38,38,0.1); color:var(--accent-red);">🎬 함께 보는 영상 ③</div>
         <h2>이건 꼭 조심하셔야 합니다</h2>
-        <div class="video-box">
-            <div class="play">▶</div>
-            <div>
+        <div class="embed-wrap">
+            <div class="embed-frame">
+                <iframe src="https://www.youtube.com/embed/mH1QkFXzhg8?rel=0" title="&quot;실제 인물처럼&quot; 또 AI 악용 범죄 / KNN"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            </div>
+            <div class="embed-info">
                 <h3>"실제 인물처럼" 또 AI 악용 범죄 / KNN</h3>
-                <p>KNN 뉴스 · 20초 · 2026년 8월 · 유명인을 사칭한 딥페이크 투자 사기 피해</p>
-                <p style="margin-top:10px;"><a href="https://www.youtube.com/shorts/mH1QkFXzhg8" target="_blank">https://www.youtube.com/shorts/mH1QkFXzhg8</a></p>
+                <p class="meta">KNN 뉴스 · 20초 · 2026년 8월<br>유명인을 사칭한 딥페이크 투자 사기 피해</p>
+                <p class="fallback">화면에서 재생되지 않으면 &nbsp;<a href="https://www.youtube.com/shorts/mH1QkFXzhg8" target="_blank">youtube.com/shorts/mH1QkFXzhg8</a></p>
             </div>
         </div>
         <div class="highlight-box" style="text-align:center;">
